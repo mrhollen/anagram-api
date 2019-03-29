@@ -1,0 +1,22 @@
+{
+  "name": "anagram-api",
+  "version": "1.0.0",
+  "description": "Take-home Anagram Rest API for Ibotta",
+  "main": "dst/main.js",
+  "scripts": {
+    "start": "node dst/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrhollen/anagram-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mrhollen/anagram-api/issues"
+  },
+  "homepage": "https://github.com/mrhollen/anagram-api#readme",
+  "devDependencies": {
+  }
+}
