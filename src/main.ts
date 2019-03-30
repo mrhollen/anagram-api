@@ -27,7 +27,7 @@ class App {
             const word: string = request.params['word'];
             const result = await this.anagramService.getAnagrams(word.toLowerCase());
 
-            response.json(result);
+            response.json(result.map(a => a.word));
         });
     }
 

@@ -63,7 +63,7 @@ var App = /** @class */ (function () {
                         return [4 /*yield*/, this.anagramService.getAnagrams(word.toLowerCase())];
                     case 1:
                         result = _a.sent();
-                        response.json(result);
+                        response.json(result.map(function (a) { return a.word; }));
                         return [2 /*return*/];
                 }
             });
