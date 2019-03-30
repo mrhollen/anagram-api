@@ -55,12 +55,13 @@ var App = /** @class */ (function () {
     App.prototype.route = function () {
         var _this = this;
         this.expressApp.get('/anagrams/:word.json', function (request, response, next) { return __awaiter(_this, void 0, void 0, function () {
-            var word, result;
+            var word, limit, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         word = request.params['word'];
-                        return [4 /*yield*/, this.anagramService.getAnagrams(word.toLowerCase())];
+                        limit = request.query['limit'];
+                        return [4 /*yield*/, this.anagramService.getAnagrams(word.toLowerCase(), limit)];
                     case 1:
                         result = _a.sent();
                         response.json(result.map(function (a) { return a.word; }));

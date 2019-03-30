@@ -14,9 +14,9 @@ export class Anagram {
         // in the English language without much issue, but someone could put in some long nonsense
         // and cause some issues
         if(word.length < 10){
-            this.key = sortingService.selectionSort<string>(word.split('')).toString();
+            this.key = sortingService.selectionSort(word.split('')).toString();
         } else {
-            this.key = sortingService.quickSort<string>(word.split('')).toString();
+            this.key = sortingService.quickSort(word.split('')).toString();
         }
     }
 }

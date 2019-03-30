@@ -1,5 +1,5 @@
 export class SortingService {
-    public selectionSort<T>(array: T[]): T[] {
+    public selectionSort(array: number[] | string[]): number[] | string[]{
         for(let i = 0; i < array.length; i++){
             let lowestIndex: number = i;
             for(let j = i; j < array.length; j++){
@@ -13,7 +13,7 @@ export class SortingService {
         return array;
     }
 
-    public quickSort<T>(array: T[]): T[] {
+    public quickSort(array: number[] | string[]): number[] | string[] {
         throw new Error("Method Not Implemented");
     }
 

@@ -4,7 +4,7 @@ var Anagram_1 = require("./models/Anagram");
 var InMemoryDataConnector = /** @class */ (function () {
     function InMemoryDataConnector() {
         var _this = this;
-        var testAnagrams = ["hello", "bat", "angry"];
+        var testAnagrams = ["hello", "heoll", "loleh", "bat", "angry"];
         this.anagrams = new Map();
         testAnagrams.forEach(function (a) {
             var newAnagram = new Anagram_1.Anagram(a);
@@ -16,12 +16,15 @@ var InMemoryDataConnector = /** @class */ (function () {
             _this.anagrams.set(newAnagram.key, existingValue);
         });
     }
-    InMemoryDataConnector.prototype.getAnagrams = function (key) {
+    InMemoryDataConnector.prototype.getAnagrams = function (key, limit) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            var anagrams = _this.anagrams.get(key);
-            if (anagrams) {
-                resolve(anagrams);
+            var foundAnagrams = _this.anagrams.get(key);
+            if (foundAnagrams) {
+                if (limit) {
+                    foundAnagrams = foundAnagrams.slice(0, limit);
+                }
+                resolve(foundAnagrams);
             }
             else {
                 reject("Key not found");

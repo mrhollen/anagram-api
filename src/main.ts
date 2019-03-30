@@ -25,7 +25,8 @@ class App {
     private route() {
         this.expressApp.get('/anagrams/:word.json', async (request, response, next) => {
             const word: string = request.params['word'];
-            const result = await this.anagramService.getAnagrams(word.toLowerCase());
+            const limit: number = request.query['limit'];
+            const result = await this.anagramService.getAnagrams(word.toLowerCase(), limit);
 
             response.json(result.map(a => a.word));
         });
