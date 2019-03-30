@@ -4,6 +4,8 @@
   "description": "Take-home Anagram Rest API for Ibotta",
   "main": "dst/main.js",
   "scripts": {
+    "build": "tsc",
+    "dev": "tsc-watch --onSuccess 'node ./dst/main.js'",
     "start": "node dst/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,5 +20,11 @@
   },
   "homepage": "https://github.com/mrhollen/anagram-api#readme",
   "devDependencies": {
+    "@types/express": "^4.16.1",
+    "@types/cors": "^2.8.4"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.16.4"
   }
 }

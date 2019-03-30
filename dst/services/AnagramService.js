@@ -34,48 +34,25 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var http_1 = __importDefault(require("http"));
-var express_1 = __importDefault(require("express"));
-var AnagramService_1 = require("./services/AnagramService");
-var AnagramDataManager_1 = require("./data/AnagramDataManager");
-var App = /** @class */ (function () {
-    function App() {
-        this.expressApp = express_1.default();
-        this.PORT = 3000;
-        this.server = http_1.default.createServer();
-        // TODO: Get this to be injected on startup
-        this.anagramService = new AnagramService_1.AnagramService(new AnagramDataManager_1.AnagramDataManager());
-        this.route();
-        this.startApp();
+var Anagram_1 = require("../data/models/Anagram");
+var AnagramService = /** @class */ (function () {
+    function AnagramService(anagramDataManager) {
+        this.anagramDataManager = anagramDataManager;
     }
-    App.prototype.route = function () {
-        var _this = this;
-        this.expressApp.get('/anagrams/:word.json', function (request, response, next) { return __awaiter(_this, void 0, void 0, function () {
-            var word, result;
+    AnagramService.prototype.getAnagrams = function (word) {
+        return __awaiter(this, void 0, void 0, function () {
+            var anagram, anagrams;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        word = request.params['word'];
-                        return [4 /*yield*/, this.anagramService.getAnagrams(word.toLowerCase())];
-                    case 1:
-                        result = _a.sent();
-                        response.json(result);
-                        return [2 /*return*/];
-                }
+                anagram = new Anagram_1.Anagram(word);
+                anagrams = this.anagramDataManager.anagrams.get(anagram.key) || [];
+                return [2 /*return*/, anagrams.filter(function (anagram) {
+                        return anagram.word !== word;
+                    })];
             });
-        }); });
-    };
-    App.prototype.startApp = function () {
-        var _this = this;
-        this.expressApp.listen(this.PORT, function () {
-            console.log("Listening on http://localhost:" + _this.PORT + "/");
         });
     };
-    return App;
+    return AnagramService;
 }());
-exports.default = new App().expressApp;
-//# sourceMappingURL=main.js.map
+exports.AnagramService = AnagramService;
+//# sourceMappingURL=AnagramService.js.map
