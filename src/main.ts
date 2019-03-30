@@ -1,7 +1,7 @@
 import http from "http"
 import express from "express";
 import { AnagramService } from "./services/AnagramService";
-import { AnagramDataManager } from "./data/AnagramDataManager";
+import { InMemoryDataConnector } from "./data/InMemoryDataConnector";
 
 class App {
     public expressApp: express.Application;
@@ -16,7 +16,7 @@ class App {
         this.server = http.createServer();
 
         // TODO: Get this to be injected on startup
-        this.anagramService = new AnagramService(new AnagramDataManager());
+        this.anagramService = new AnagramService(new InMemoryDataConnector());
 
         this.route();
         this.startApp();

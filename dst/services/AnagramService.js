@@ -37,18 +37,23 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Anagram_1 = require("../data/models/Anagram");
 var AnagramService = /** @class */ (function () {
-    function AnagramService(anagramDataManager) {
-        this.anagramDataManager = anagramDataManager;
+    function AnagramService(dataConnector) {
+        this.dataConnector = dataConnector;
     }
     AnagramService.prototype.getAnagrams = function (word) {
         return __awaiter(this, void 0, void 0, function () {
             var anagram, anagrams;
             return __generator(this, function (_a) {
-                anagram = new Anagram_1.Anagram(word);
-                anagrams = this.anagramDataManager.anagrams.get(anagram.key) || [];
-                return [2 /*return*/, anagrams.filter(function (anagram) {
-                        return anagram.word !== word;
-                    })];
+                switch (_a.label) {
+                    case 0:
+                        anagram = new Anagram_1.Anagram(word);
+                        return [4 /*yield*/, this.dataConnector.getAnagrams(anagram.key)];
+                    case 1:
+                        anagrams = (_a.sent()) || [];
+                        return [2 /*return*/, anagrams.filter(function (anagram) {
+                                return anagram.word !== word;
+                            })];
+                }
             });
         });
     };

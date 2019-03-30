@@ -41,14 +41,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = __importDefault(require("http"));
 var express_1 = __importDefault(require("express"));
 var AnagramService_1 = require("./services/AnagramService");
-var AnagramDataManager_1 = require("./data/AnagramDataManager");
+var InMemoryDataConnector_1 = require("./data/InMemoryDataConnector");
 var App = /** @class */ (function () {
     function App() {
         this.expressApp = express_1.default();
         this.PORT = 3000;
         this.server = http_1.default.createServer();
         // TODO: Get this to be injected on startup
-        this.anagramService = new AnagramService_1.AnagramService(new AnagramDataManager_1.AnagramDataManager());
+        this.anagramService = new AnagramService_1.AnagramService(new InMemoryDataConnector_1.InMemoryDataConnector());
         this.route();
         this.startApp();
     }
