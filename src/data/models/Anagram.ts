@@ -1,6 +1,8 @@
 import { SortingService } from "../../services/SortingService";
 
 export class Anagram {
+    // The key of the anagram is all the letters of the word sorted alphabetically
+    // This should allow us to find anagrams quickly by using a key lookup
     public key: string;
     public word: string;
 

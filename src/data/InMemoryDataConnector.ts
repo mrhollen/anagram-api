@@ -24,15 +24,12 @@ export class InMemoryDataConnector implements IDataConnector {
     getAnagrams(key: string, limit?: number): Promise<Anagram[]> {
         return new Promise((resolve, reject) => {
             let foundAnagrams = this.anagrams.get(key);
-
-            if(foundAnagrams){
-                if(limit){
-                    foundAnagrams = foundAnagrams.slice(0, limit);
-                }
-                resolve(foundAnagrams);
-            } else {
-                reject("Key not found");
+            
+            if(foundAnagrams && limit){
+                foundAnagrams = foundAnagrams.slice(0, limit);
             }
+            
+            resolve(foundAnagrams);
         });
     }    
     

@@ -20,15 +20,10 @@ var InMemoryDataConnector = /** @class */ (function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
             var foundAnagrams = _this.anagrams.get(key);
-            if (foundAnagrams) {
-                if (limit) {
-                    foundAnagrams = foundAnagrams.slice(0, limit);
-                }
-                resolve(foundAnagrams);
+            if (foundAnagrams && limit) {
+                foundAnagrams = foundAnagrams.slice(0, limit);
             }
-            else {
-                reject("Key not found");
-            }
+            resolve(foundAnagrams);
         });
     };
     InMemoryDataConnector.prototype.addAnagram = function (anagram) {

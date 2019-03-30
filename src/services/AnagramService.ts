@@ -5,11 +5,15 @@ export class AnagramService {
     constructor(private dataConnector: IDataConnector) {}
 
     public async getAnagrams(word: string, limit: number): Promise<Anagram[]> {
-        const anagram = new Anagram(word);
+        return new Promise(async (resolve, reject) => {
+            const anagram = new Anagram(word);
+    
+            let anagrams = await this.dataConnector.getAnagrams(anagram.key, limit) || [];
+            anagrams = anagrams.filter(anagram => {
+                return anagram.word !== word;
+            });
 
-        const anagrams = await this.dataConnector.getAnagrams(anagram.key, limit) || [];
-        return anagrams.filter(anagram => {
-            return anagram.word !== word;
+            resolve(anagrams);
         });
     }
 }

@@ -42,18 +42,25 @@ var AnagramService = /** @class */ (function () {
     }
     AnagramService.prototype.getAnagrams = function (word, limit) {
         return __awaiter(this, void 0, void 0, function () {
-            var anagram, anagrams;
+            var _this = this;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        anagram = new Anagram_1.Anagram(word);
-                        return [4 /*yield*/, this.dataConnector.getAnagrams(anagram.key, limit)];
-                    case 1:
-                        anagrams = (_a.sent()) || [];
-                        return [2 /*return*/, anagrams.filter(function (anagram) {
-                                return anagram.word !== word;
-                            })];
-                }
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        var anagram, anagrams;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    anagram = new Anagram_1.Anagram(word);
+                                    return [4 /*yield*/, this.dataConnector.getAnagrams(anagram.key, limit)];
+                                case 1:
+                                    anagrams = (_a.sent()) || [];
+                                    anagrams = anagrams.filter(function (anagram) {
+                                        return anagram.word !== word;
+                                    });
+                                    resolve(anagrams);
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); })];
             });
         });
     };
