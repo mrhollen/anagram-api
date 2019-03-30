@@ -5,7 +5,7 @@ export class InMemoryDataConnector implements IDataConnector {
     private anagrams: Map<string, Anagram[]>;
 
     constructor() {
-        const testAnagrams = ["hello", "heoll", "loleh", "bat", "angry"];
+        const testAnagrams = ["hello", "heoll", "loleh", "bat", "angry", "dare", "dear"];
         this.anagrams = new Map<string, Anagram[]>();
 
         testAnagrams.forEach( a => {
@@ -28,7 +28,7 @@ export class InMemoryDataConnector implements IDataConnector {
             if(foundAnagrams && limit){
                 foundAnagrams = foundAnagrams.slice(0, limit);
             }
-            
+
             resolve(foundAnagrams);
         });
     }    

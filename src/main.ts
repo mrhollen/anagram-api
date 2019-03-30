@@ -28,7 +28,7 @@ class App {
             const limit: number = request.query['limit'];
             const result = await this.anagramService.getAnagrams(word.toLowerCase(), limit);
 
-            response.json(result.map(a => a.word));
+            response.json({ anagrams: result.map(a => a.word) });
         });
     }
 

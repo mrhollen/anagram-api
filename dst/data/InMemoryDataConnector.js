@@ -4,7 +4,7 @@ var Anagram_1 = require("./models/Anagram");
 var InMemoryDataConnector = /** @class */ (function () {
     function InMemoryDataConnector() {
         var _this = this;
-        var testAnagrams = ["hello", "heoll", "loleh", "bat", "angry"];
+        var testAnagrams = ["hello", "heoll", "loleh", "bat", "angry", "dare", "dear"];
         this.anagrams = new Map();
         testAnagrams.forEach(function (a) {
             var newAnagram = new Anagram_1.Anagram(a);
