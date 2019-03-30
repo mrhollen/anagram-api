@@ -42,13 +42,16 @@ var http_1 = __importDefault(require("http"));
 var express_1 = __importDefault(require("express"));
 var AnagramService_1 = require("./services/AnagramService");
 var InMemoryDataConnector_1 = require("./data/InMemoryDataConnector");
+var bodyParser = require("body-parser");
 var App = /** @class */ (function () {
     function App() {
         this.expressApp = express_1.default();
+        this.expressApp.use(bodyParser.json());
         this.PORT = 3000;
         this.server = http_1.default.createServer();
         // TODO: Get this to be injected on startup
         this.anagramService = new AnagramService_1.AnagramService(new InMemoryDataConnector_1.InMemoryDataConnector());
+        //this.anagramService.initialize('/home/hollen/Documents/code/ibotta/anagram-api/src/data/dictionary.txt');
         this.route();
         this.startApp();
     }
@@ -67,6 +70,30 @@ var App = /** @class */ (function () {
                         response.json({ anagrams: result.map(function (a) { return a.word; }) });
                         return [2 /*return*/];
                 }
+            });
+        }); }).post('/words.json', function (request, response, next) { return __awaiter(_this, void 0, void 0, function () {
+            var wordsToAdd;
+            var _this = this;
+            return __generator(this, function (_a) {
+                try {
+                    wordsToAdd = request.body['words'];
+                    wordsToAdd.forEach(function (word) { return __awaiter(_this, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, this.anagramService.addWord(word.toLowerCase())];
+                                case 1:
+                                    _a.sent();
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); });
+                }
+                catch (error) {
+                    response.sendStatus(500);
+                    return [2 /*return*/];
+                }
+                response.sendStatus(201);
+                return [2 /*return*/];
             });
         }); });
     };

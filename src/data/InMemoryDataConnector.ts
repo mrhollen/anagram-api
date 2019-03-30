@@ -5,20 +5,7 @@ export class InMemoryDataConnector implements IDataConnector {
     private anagrams: Map<string, Anagram[]>;
 
     constructor() {
-        const testAnagrams = ["hello", "heoll", "loleh", "bat", "angry", "dare", "dear"];
         this.anagrams = new Map<string, Anagram[]>();
-
-        testAnagrams.forEach( a => {
-            const newAnagram = new Anagram(a);
-
-            let existingValue: Anagram[] = [];
-            if(this.anagrams.has(newAnagram.key)) {
-                existingValue = this.anagrams.get(newAnagram.key) || [];
-            }
-
-            existingValue.push(newAnagram);
-            this.anagrams.set(newAnagram.key, existingValue);
-        });
     }
 
     getAnagrams(key: string, limit?: number): Promise<Anagram[]> {
@@ -34,7 +21,19 @@ export class InMemoryDataConnector implements IDataConnector {
     }    
     
     addAnagram(anagram: Anagram): Promise<void> {
-        throw new Error("Method not implemented.");
+        return new Promise((resolve, reject) => {
+            let existingValue: Anagram[] = [];
+            if(this.anagrams.has(anagram.key)) {
+                existingValue = this.anagrams.get(anagram.key) || [];
+            }
+            
+            if(existingValue.filter(a => a.word === anagram.word).length === 0){
+                existingValue.push(anagram);
+                this.anagrams.set(anagram.key, existingValue);
+            }
+    
+            resolve();
+        });
     }
 
     deleteAnagram(anagram: Anagram): Promise<void> {

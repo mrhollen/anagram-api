@@ -36,10 +36,33 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Anagram_1 = require("../data/models/Anagram");
+var util_1 = require("util");
+var fs_1 = require("fs");
 var AnagramService = /** @class */ (function () {
     function AnagramService(dataConnector) {
         this.dataConnector = dataConnector;
     }
+    AnagramService.prototype.initialize = function (source) {
+        var _this = this;
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var readFileAsync, data;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        readFileAsync = util_1.promisify(fs_1.readFile);
+                        return [4 /*yield*/, readFileAsync(source, 'utf-8')];
+                    case 1:
+                        data = _a.sent();
+                        data.split('\n').forEach(function (word) {
+                            _this.dataConnector.addAnagram(new Anagram_1.Anagram(word.toLowerCase()));
+                        });
+                        resolve();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+    };
     AnagramService.prototype.getAnagrams = function (word, limit) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
@@ -57,6 +80,26 @@ var AnagramService = /** @class */ (function () {
                                         return anagram.word !== word;
                                     });
                                     resolve(anagrams);
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); })];
+            });
+        });
+    };
+    AnagramService.prototype.addWord = function (word) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        var anagram;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    anagram = new Anagram_1.Anagram(word);
+                                    return [4 /*yield*/, this.dataConnector.addAnagram(anagram)];
+                                case 1:
+                                    _a.sent();
                                     return [2 /*return*/];
                             }
                         });

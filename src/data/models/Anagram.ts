@@ -15,7 +15,7 @@ export class Anagram {
         // Realistically selection sort would probably work for most words
         // in the English language without much issue, but someone could put in some long nonsense
         // and cause some issues
-        if(word.length < 10){
+        if(word.length < 100){
             this.key = sortingService.selectionSort(word.split('')).toString();
         } else {
             this.key = sortingService.quickSort(word.split('')).toString();

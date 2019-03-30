@@ -1,20 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Anagram_1 = require("./models/Anagram");
 var InMemoryDataConnector = /** @class */ (function () {
     function InMemoryDataConnector() {
-        var _this = this;
-        var testAnagrams = ["hello", "heoll", "loleh", "bat", "angry", "dare", "dear"];
         this.anagrams = new Map();
-        testAnagrams.forEach(function (a) {
-            var newAnagram = new Anagram_1.Anagram(a);
-            var existingValue = [];
-            if (_this.anagrams.has(newAnagram.key)) {
-                existingValue = _this.anagrams.get(newAnagram.key) || [];
-            }
-            existingValue.push(newAnagram);
-            _this.anagrams.set(newAnagram.key, existingValue);
-        });
     }
     InMemoryDataConnector.prototype.getAnagrams = function (key, limit) {
         var _this = this;
@@ -27,7 +15,18 @@ var InMemoryDataConnector = /** @class */ (function () {
         });
     };
     InMemoryDataConnector.prototype.addAnagram = function (anagram) {
-        throw new Error("Method not implemented.");
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            var existingValue = [];
+            if (_this.anagrams.has(anagram.key)) {
+                existingValue = _this.anagrams.get(anagram.key) || [];
+            }
+            if (existingValue.filter(function (a) { return a.word === anagram.word; }).length === 0) {
+                existingValue.push(anagram);
+                _this.anagrams.set(anagram.key, existingValue);
+            }
+            resolve();
+        });
     };
     InMemoryDataConnector.prototype.deleteAnagram = function (anagram) {
         throw new Error("Method not implemented.");
