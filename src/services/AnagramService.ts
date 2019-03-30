@@ -28,6 +28,11 @@ export class AnagramService {
                 return anagram.word !== word;
             });
 
+            // TODO: Find a better place to put this
+            if(limit){
+                anagrams = anagrams.slice(0, limit);
+            }
+
             resolve(anagrams);
         });
     }

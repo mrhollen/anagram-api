@@ -79,6 +79,10 @@ var AnagramService = /** @class */ (function () {
                                     anagrams = anagrams.filter(function (anagram) {
                                         return anagram.word !== word;
                                     });
+                                    // TODO: Find a better place to put this
+                                    if (limit) {
+                                        anagrams = anagrams.slice(0, limit);
+                                    }
                                     resolve(anagrams);
                                     return [2 /*return*/];
                             }

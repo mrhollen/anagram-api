@@ -4,13 +4,10 @@ var InMemoryDataConnector = /** @class */ (function () {
     function InMemoryDataConnector() {
         this.anagrams = new Map();
     }
-    InMemoryDataConnector.prototype.getAnagrams = function (key, limit) {
+    InMemoryDataConnector.prototype.getAnagrams = function (key) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             var foundAnagrams = _this.anagrams.get(key);
-            if (foundAnagrams && limit) {
-                foundAnagrams = foundAnagrams.slice(0, limit);
-            }
             resolve(foundAnagrams);
         });
     };

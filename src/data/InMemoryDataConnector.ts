@@ -8,13 +8,9 @@ export class InMemoryDataConnector implements IDataConnector {
         this.anagrams = new Map<string, Anagram[]>();
     }
 
-    getAnagrams(key: string, limit?: number): Promise<Anagram[]> {
+    getAnagrams(key: string): Promise<Anagram[]> {
         return new Promise((resolve, reject) => {
             let foundAnagrams = this.anagrams.get(key);
-            
-            if(foundAnagrams && limit){
-                foundAnagrams = foundAnagrams.slice(0, limit);
-            }
 
             resolve(foundAnagrams);
         });

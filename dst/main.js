@@ -51,7 +51,7 @@ var App = /** @class */ (function () {
         this.server = http_1.default.createServer();
         // TODO: Get this to be injected on startup
         this.anagramService = new AnagramService_1.AnagramService(new InMemoryDataConnector_1.InMemoryDataConnector());
-        //this.anagramService.initialize('/home/hollen/Documents/code/ibotta/anagram-api/src/data/dictionary.txt');
+        //this.anagramService.initialize('./data/dictionary.txt');
         this.route();
         this.startApp();
     }
