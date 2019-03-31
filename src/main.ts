@@ -3,12 +3,14 @@ import express from "express";
 import { AnagramService } from "./services/AnagramService";
 import { InMemoryDataConnector } from "./data/InMemoryDataConnector";
 import bodyParser = require("body-parser");
+import { AnagramController } from "./controllers/anagramController";
 
 class App {
     public expressApp: express.Application;
     public server: http.Server;
     public PORT: number;
 
+    private anagramController: AnagramController;
     private anagramService: AnagramService;
 
     constructor() {
@@ -21,40 +23,14 @@ class App {
         this.anagramService = new AnagramService(new InMemoryDataConnector());
         this.anagramService.initialize('./dst/data/dictionary.txt');
 
+        this.anagramController = new AnagramController(this.expressApp, this.anagramService);
+
         this.route();
         this.startApp();
     }
 
     private route() {
-        this.expressApp.get('/anagrams/:word.json', async (request, response, next) => {
-            const word: string = request.params['word'];
-            const limit: number = request.query['limit'];
-            const result = await this.anagramService.getAnagrams(word.toLowerCase(), limit);
-
-            response.json({ anagrams: result.map(a => a.word) });
-        }).post('/words.json', async (request, response, next) => {
-            try {
-                const wordsToAdd: string[] = request.body['words'];
-                wordsToAdd.forEach(async word => {
-                    await this.anagramService.addWord(word.toLowerCase());
-                });
-            } catch(error) {
-                response.sendStatus(500);
-                return;
-            }
-
-            response.sendStatus(201);
-        }).delete('/words/:word.json', async (request, response) => {
-            const word: string = request.params['word'];
-
-            await this.anagramService.deleteWord(word.toLowerCase());
-
-            response.sendStatus(204);
-        }).delete('/words.json', async (request, response) => {
-            await this.anagramService.deleteAll();
-
-            response.sendStatus(204);
-        });
+        this.anagramController.route();
     }
 
     private startApp(){
