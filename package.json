@@ -4,8 +4,8 @@
   "description": "Take-home Anagram Rest API for Ibotta",
   "main": "dst/main.js",
   "scripts": {
-    "build": "tsc && cp ./src/data/dictionary.txt ./dist/data/dictionary.txt",
-    "dev": "tsc-watch --onSuccess 'node ./dst/main.js'",
+    "build": "tsc && cp ./src/data/dictionary.txt ./dst/data/dictionary.txt",
+    "dev": "cp ./src/data/dictionary.txt ./dst/data/dictionary.txt && tsc-watch --onSuccess 'node ./dst/main.js'",
     "start": "node dst/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
