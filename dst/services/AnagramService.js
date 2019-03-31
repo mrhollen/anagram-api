@@ -55,7 +55,7 @@ var AnagramService = /** @class */ (function () {
                     case 1:
                         data = _a.sent();
                         data.split('\n').forEach(function (word) {
-                            _this.dataConnector.addAnagram(new Anagram_1.Anagram(word.toLowerCase()));
+                            _this.dataConnector.addAnagram(new Anagram_1.Anagram(word));
                         });
                         resolve();
                         return [2 /*return*/];
@@ -104,6 +104,46 @@ var AnagramService = /** @class */ (function () {
                                     return [4 /*yield*/, this.dataConnector.addAnagram(anagram)];
                                 case 1:
                                     _a.sent();
+                                    resolve();
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); })];
+            });
+        });
+    };
+    AnagramService.prototype.deleteWord = function (word) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        var anagram;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    anagram = new Anagram_1.Anagram(word);
+                                    return [4 /*yield*/, this.dataConnector.deleteAnagram(anagram)];
+                                case 1:
+                                    _a.sent();
+                                    resolve();
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); })];
+            });
+        });
+    };
+    AnagramService.prototype.deleteAll = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, this.dataConnector.deleteAll()];
+                                case 1:
+                                    _a.sent();
+                                    resolve();
                                     return [2 /*return*/];
                             }
                         });

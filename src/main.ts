@@ -44,6 +44,16 @@ class App {
             }
 
             response.sendStatus(201);
+        }).delete('/words/:word.json', async (request, response) => {
+            const word: string = request.params['word'];
+
+            await this.anagramService.deleteWord(word.toLowerCase());
+
+            response.sendStatus(204);
+        }).delete('/words.json', async (request, response) => {
+            await this.anagramService.deleteAll();
+
+            response.sendStatus(204);
         });
     }
 

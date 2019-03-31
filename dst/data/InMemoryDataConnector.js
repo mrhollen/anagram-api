@@ -26,7 +26,20 @@ var InMemoryDataConnector = /** @class */ (function () {
         });
     };
     InMemoryDataConnector.prototype.deleteAnagram = function (anagram) {
-        throw new Error("Method not implemented.");
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            var anagramsForKey = _this.anagrams.get(anagram.key) || [];
+            anagramsForKey = anagramsForKey.filter(function (a) { return a.word !== anagram.word; });
+            _this.anagrams.set(anagram.key, anagramsForKey);
+            resolve();
+        });
+    };
+    InMemoryDataConnector.prototype.deleteAll = function () {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.anagrams = new Map();
+            resolve();
+        });
     };
     return InMemoryDataConnector;
 }());

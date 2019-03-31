@@ -9,7 +9,7 @@ export class Anagram {
     constructor(word: string) {
         const sortingService: SortingService = new SortingService();
         
-        this.word = word;
+        this.word = word.toLowerCase();
 
         // If the word is short there's no need to go through the extra overhead of quick sort
         // Realistically selection sort would probably work for most words

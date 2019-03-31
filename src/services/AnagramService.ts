@@ -12,7 +12,7 @@ export class AnagramService {
 
             const data = await readFileAsync(source, 'utf-8');
             data.split('\n').forEach(word => {
-                this.dataConnector.addAnagram(new Anagram(word.toLowerCase()));
+                this.dataConnector.addAnagram(new Anagram(word));
             });
 
             resolve();
@@ -41,6 +41,22 @@ export class AnagramService {
         return new Promise(async (resolve, reject) => {
             const anagram = new Anagram(word);
             await this.dataConnector.addAnagram(anagram);
+            resolve();
+        });
+    }
+
+    public async deleteWord(word: string): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            const anagram = new Anagram(word);
+            await this.dataConnector.deleteAnagram(anagram);
+            resolve();
+        });
+    }
+
+    public async deleteAll(): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            await this.dataConnector.deleteAll();
+            resolve();
         });
     }
 }

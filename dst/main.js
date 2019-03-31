@@ -95,6 +95,29 @@ var App = /** @class */ (function () {
                 response.sendStatus(201);
                 return [2 /*return*/];
             });
+        }); }).delete('/words/:word.json', function (request, response) { return __awaiter(_this, void 0, void 0, function () {
+            var word;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        word = request.params['word'];
+                        return [4 /*yield*/, this.anagramService.deleteWord(word.toLowerCase())];
+                    case 1:
+                        _a.sent();
+                        response.sendStatus(204);
+                        return [2 /*return*/];
+                }
+            });
+        }); }).delete('/words.json', function (request, response) { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.anagramService.deleteAll()];
+                    case 1:
+                        _a.sent();
+                        response.sendStatus(204);
+                        return [2 /*return*/];
+                }
+            });
         }); });
     };
     App.prototype.startApp = function () {
