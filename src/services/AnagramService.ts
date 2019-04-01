@@ -2,6 +2,7 @@ import { Anagram } from '../data/models/Anagram';
 import { IDataConnector } from '../data/IDataConnector';
 import { promisify } from 'util';
 import { readFile } from 'fs';
+import { IAnagramStatistics } from '../data/models/IAnagramStatistics';
 
 export class AnagramService {
     constructor(private dataConnector: IDataConnector) {}
@@ -57,6 +58,13 @@ export class AnagramService {
         return new Promise(async (resolve, reject) => {
             await this.dataConnector.deleteAll();
             resolve();
+        });
+    }
+
+    public async getAnagramStatistics(): Promise<IAnagramStatistics> {
+        return new Promise(async (resolve, reject) => {
+            const statistics = await this.dataConnector.getAnagramStatistics();
+            resolve(statistics);
         });
     }
 }

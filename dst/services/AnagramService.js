@@ -151,6 +151,25 @@ var AnagramService = /** @class */ (function () {
             });
         });
     };
+    AnagramService.prototype.getAnagramStatistics = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        var statistics;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, this.dataConnector.getAnagramStatistics()];
+                                case 1:
+                                    statistics = _a.sent();
+                                    resolve(statistics);
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); })];
+            });
+        });
+    };
     return AnagramService;
 }());
 exports.AnagramService = AnagramService;

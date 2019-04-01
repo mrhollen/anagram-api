@@ -17,6 +17,12 @@ export class AnagramController {
             response.json({ anagrams: result.map(a => a.word) });
         });
 
+        // Get statistics on datastore
+        this.expressApp.get('/statistics.json', async (request, response) => {
+            const results = await this.anagramService.getAnagramStatistics();
+            response.json(results);
+        });
+
         // Add words to anagrams list
         this.expressApp.post('/words.json', async (request, response) => {
             try {

@@ -21,7 +21,7 @@ class App {
 
         // TODO: Get this to be injected on startup
         this.anagramService = new AnagramService(new InMemoryDataConnector());
-        this.anagramService.initialize('./dst/data/dictionary.txt');
+        //this.anagramService.initialize('./dst/data/dictionary.txt');
 
         this.anagramController = new AnagramController(this.expressApp, this.anagramService);
 

@@ -58,6 +58,19 @@ var AnagramController = /** @class */ (function () {
                 }
             });
         }); });
+        // Get statistics on datastore
+        this.expressApp.get('/statistics.json', function (request, response) { return __awaiter(_this, void 0, void 0, function () {
+            var results;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.anagramService.getAnagramStatistics()];
+                    case 1:
+                        results = _a.sent();
+                        response.json(results);
+                        return [2 /*return*/];
+                }
+            });
+        }); });
         // Add words to anagrams list
         this.expressApp.post('/words.json', function (request, response) { return __awaiter(_this, void 0, void 0, function () {
             var wordsToAdd;
