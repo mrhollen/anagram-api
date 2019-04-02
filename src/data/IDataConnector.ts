@@ -1,5 +1,5 @@
-import { Anagram } from './models/Anagram';
-import { IAnagramStatistics } from './models/IAnagramStatistics';
+import { Anagram } from "../models/Anagram";
+import { IAnagramStatistics } from "../models/IAnagramStatistics";
 
 export interface IDataConnector {
     getAnagrams(key: string, limit?: number): Promise<Anagram[]>;

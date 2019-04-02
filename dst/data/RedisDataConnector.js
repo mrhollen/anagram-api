@@ -38,7 +38,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Anagram_1 = require("./models/Anagram");
+var Anagram_1 = require("../models/Anagram");
 var redis_1 = __importDefault(require("redis"));
 var util_1 = require("util");
 var RedisDataConnector = /** @class */ (function () {
@@ -46,6 +46,7 @@ var RedisDataConnector = /** @class */ (function () {
         this.redisClient = redis_1.default.createClient(redisPort, redisHost);
         // Setup all the promises
         this.getAsync = util_1.promisify(this.redisClient.smembers).bind(this.redisClient);
+        this.getElementCountAsync = util_1.promisify(this.redisClient.scard).bind(this.redisClient);
         this.addAsync = util_1.promisify(this.redisClient.sadd).bind(this.redisClient);
         this.removeAsync = util_1.promisify(this.redisClient.srem).bind(this.redisClient);
         this.getKeysAsync = util_1.promisify(this.redisClient.keys).bind(this.redisClient);

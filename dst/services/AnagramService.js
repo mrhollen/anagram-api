@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Anagram_1 = require("../data/models/Anagram");
+var Anagram_1 = require("../models/Anagram");
 var util_1 = require("util");
 var fs_1 = require("fs");
 var AnagramService = /** @class */ (function () {

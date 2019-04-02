@@ -1,6 +1,6 @@
 import { IDataConnector } from './IDataConnector';
-import { Anagram } from './models/Anagram';
-import { IAnagramStatistics } from './models/IAnagramStatistics';
+import { Anagram } from '../models/Anagram';
+import { IAnagramStatistics } from '../models/IAnagramStatistics';
 import redis, { RedisClient } from 'redis';
 import { promisify } from 'util';
 
@@ -9,6 +9,7 @@ export class RedisDataConnector implements IDataConnector {
 
     // All this is so we can use promises and avoid falling into the callback pit
     private getAsync: (key: string) => Promise<string[]>;
+    private getElementCountAsync: (key: string) => Promise<number>;
     private addAsync: (key: string, ...args: Array<string>) => Promise<number>;
     private removeAsync: (key: string, ...args: Array<string>) => Promise<number>;
     private getKeysAsync: (pattern: string) => Promise<string[]>;
@@ -19,6 +20,7 @@ export class RedisDataConnector implements IDataConnector {
 
         // Setup all the promises
         this.getAsync = promisify(this.redisClient.smembers).bind(this.redisClient);
+        this.getElementCountAsync = promisify(this.redisClient.scard).bind(this.redisClient);
         this.addAsync = promisify(this.redisClient.sadd).bind(this.redisClient);
         this.removeAsync = promisify(this.redisClient.srem).bind(this.redisClient);
         this.getKeysAsync = promisify(this.redisClient.keys).bind(this.redisClient);
@@ -34,7 +36,7 @@ export class RedisDataConnector implements IDataConnector {
         });
     }    
 
-    public async addAnagram(anagram: import("./models/Anagram").Anagram): Promise<void> {
+    public async addAnagram(anagram: Anagram): Promise<void> {
         return new Promise(async (resolve, reject) => {
             // Since we're using a set, each value can be added once and only once
             // We don't need to make sure there aren't duplicates
@@ -44,7 +46,7 @@ export class RedisDataConnector implements IDataConnector {
         });
     }
 
-    public async deleteAnagram(anagram: import("./models/Anagram").Anagram): Promise<void> {
+    public async deleteAnagram(anagram: Anagram): Promise<void> {
         return new Promise(async (resolve, reject) => {
             this.removeAsync(`anagram.${anagram.key}`, anagram.word);
 

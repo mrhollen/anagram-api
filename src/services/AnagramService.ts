@@ -1,8 +1,8 @@
-import { Anagram } from '../data/models/Anagram';
+import { Anagram } from '../models/Anagram';
 import { IDataConnector } from '../data/IDataConnector';
 import { promisify } from 'util';
 import { readFile } from 'fs';
-import { IAnagramStatistics } from '../data/models/IAnagramStatistics';
+import { IAnagramStatistics } from '../models/IAnagramStatistics';
 
 export class AnagramService {
     constructor(private dataConnector: IDataConnector) {}

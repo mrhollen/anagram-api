@@ -6,19 +6,30 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = __importDefault(require("http"));
 var express_1 = __importDefault(require("express"));
 var AnagramService_1 = require("./services/AnagramService");
+var InMemoryDataConnector_1 = require("./data/InMemoryDataConnector");
 var RedisDataConnector_1 = require("./data/RedisDataConnector");
 var bodyParser = require("body-parser");
 var anagramController_1 = require("./controllers/anagramController");
+var ConnectorTypes_1 = require("./models/ConnectorTypes");
 var App = /** @class */ (function () {
     function App() {
         this.expressApp = express_1.default();
         this.expressApp.use(bodyParser.json());
-        this.PORT = 3000;
         this.server = http_1.default.createServer();
+        this.appConfig = require("../appsettings.json");
         // TODO: Get this to be injected on startup
         // TODO: Set this up using a config file
-        //this.anagramService = new AnagramService(new InMemoryDataConnector());
-        this.anagramService = new AnagramService_1.AnagramService(new RedisDataConnector_1.RedisDataConnector('localhost', 6379));
+        var dataConnector;
+        if (this.appConfig.connectorType === ConnectorTypes_1.ConnectorTypes.Redis) {
+            dataConnector = new RedisDataConnector_1.RedisDataConnector(this.appConfig.redisConfig.host, this.appConfig.redisConfig.port);
+        }
+        else if (this.appConfig.connectorType === ConnectorTypes_1.ConnectorTypes.InMemory) {
+            dataConnector = new InMemoryDataConnector_1.InMemoryDataConnector();
+        }
+        else {
+            dataConnector = new InMemoryDataConnector_1.InMemoryDataConnector();
+        }
+        this.anagramService = new AnagramService_1.AnagramService(dataConnector);
         this.anagramService.initialize('./dst/data/dictionary.txt');
         this.anagramController = new anagramController_1.AnagramController(this.expressApp, this.anagramService);
         this.route();
@@ -29,8 +40,8 @@ var App = /** @class */ (function () {
     };
     App.prototype.startApp = function () {
         var _this = this;
-        this.expressApp.listen(this.PORT, function () {
-            console.log("Listening on http://localhost:" + _this.PORT + "/");
+        this.expressApp.listen(this.appConfig.port, function () {
+            console.log("Listening on http://localhost:" + _this.appConfig.port + "/");
         });
     };
     return App;
