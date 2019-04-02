@@ -21,13 +21,24 @@ export class Anagram {
             // in the English language without much issue, but someone could put in some long nonsense
             // and cause some issues
             if(word.length < 10){
-                this.key = sortingService.selectionSort(wordCharArray).toString();
+                this.key = this.getKeyFromArray(sortingService.selectionSort(wordCharArray));
             } else {
-                this.key = sortingService.quickSort(wordCharArray).toString();
+                this.key = this.getKeyFromArray(sortingService.quickSort(wordCharArray));
             }
         } else {
             this.key = key;
             this.word = word;
         }
+    }
+
+    // Remove the commas from the default array.toString()
+    // Instead of just removing commas with .remove() we could just build up
+    // a string. There might want to have words include commas
+    private getKeyFromArray(array: string[] | number[]): string {
+        let result = "";
+        array.forEach((value: string | number) => {
+            result += value.toString();
+        });
+        return result;
     }
 }
