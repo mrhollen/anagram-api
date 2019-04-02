@@ -45,13 +45,14 @@ var AnagramController = /** @class */ (function () {
         var _this = this;
         // Get list of anagrams of a word with optional return limit
         this.expressApp.get('/anagrams/:word.json', function (request, response) { return __awaiter(_this, void 0, void 0, function () {
-            var word, limit, result;
+            var word, limit, includeProperNouns, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         word = request.params['word'];
                         limit = request.query['limit'];
-                        return [4 /*yield*/, this.anagramService.getAnagrams(word, limit)];
+                        includeProperNouns = request.query['includeProperNouns'];
+                        return [4 /*yield*/, this.anagramService.getAnagrams(word, limit, includeProperNouns)];
                     case 1:
                         result = _a.sent();
                         response.json({ anagrams: result.map(function (a) { return a.word; }) });

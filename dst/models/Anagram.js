@@ -7,6 +7,8 @@ var Anagram = /** @class */ (function () {
         // Otherwise we can just use the key we already have
         if (!key) {
             var sortingService = new SortingService_1.SortingService();
+            // We won't call .toLowerCase() on this. That way we can
+            // see if it's a proper noun in the future
             this.word = word;
             var wordCharArray = word.toLowerCase().split('');
             // If the word is short there's no need to go through the extra overhead of quick sort
@@ -27,7 +29,7 @@ var Anagram = /** @class */ (function () {
     }
     // Remove the commas from the default array.toString()
     // Instead of just removing commas with .remove() we could just build up
-    // a string. There might want to have words include commas
+    // a string. We might want to have words include commas at some point
     Anagram.prototype.getKeyFromArray = function (array) {
         var result = "";
         array.forEach(function (value) {

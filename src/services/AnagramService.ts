@@ -7,6 +7,7 @@ import { IAnagramStatistics } from '../models/IAnagramStatistics';
 export class AnagramService {
     constructor(private dataConnector: IDataConnector) {}
 
+    // Preload our datastore with anagrams
     initialize(source: string): Promise<void> {
         return new Promise(async (resolve, reject) => {
             const readFileAsync = promisify(readFile);
@@ -20,14 +21,22 @@ export class AnagramService {
         });
     }
 
-    public async getAnagrams(word: string, limit: number): Promise<Anagram[]> {
+    public async getAnagrams(word: string, limit: number, includeProperNouns: boolean = true): Promise<Anagram[]> {
         return new Promise(async (resolve, reject) => {
             const anagram = new Anagram(word);
+            
+            console.log(includeProperNouns);
     
             let anagrams = await this.dataConnector.getAnagrams(anagram.key, limit) || [];
             anagrams = anagrams.filter(anagram => {
-                return anagram.word !== word;
+                return anagram.word.charAt(0) === anagram.word.charAt(0).toUpperCase();
             });
+
+            if(!includeProperNouns){
+                anagrams = anagrams.filter(anagram => {
+                   return anagram.word[0] >= 'A' && anagram.word[0] <= 'Z';
+                });
+            }
 
             // TODO: Find a better place to put this
             if(limit){

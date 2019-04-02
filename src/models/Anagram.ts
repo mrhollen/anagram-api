@@ -12,6 +12,8 @@ export class Anagram {
         if(!key){
             const sortingService: SortingService = new SortingService();
             
+            // We won't call .toLowerCase() on this. That way we can
+            // see if it's a proper noun in the future
             this.word = word;
 
             const wordCharArray  = word.toLowerCase().split('');
@@ -33,7 +35,7 @@ export class Anagram {
 
     // Remove the commas from the default array.toString()
     // Instead of just removing commas with .remove() we could just build up
-    // a string. There might want to have words include commas
+    // a string. We might want to have words include commas at some point
     private getKeyFromArray(array: string[] | number[]): string {
         let result = "";
         array.forEach((value: string | number) => {

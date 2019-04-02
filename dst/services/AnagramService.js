@@ -42,6 +42,7 @@ var AnagramService = /** @class */ (function () {
     function AnagramService(dataConnector) {
         this.dataConnector = dataConnector;
     }
+    // Preload our datastore with anagrams
     AnagramService.prototype.initialize = function (source) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
@@ -63,7 +64,8 @@ var AnagramService = /** @class */ (function () {
             });
         }); });
     };
-    AnagramService.prototype.getAnagrams = function (word, limit) {
+    AnagramService.prototype.getAnagrams = function (word, limit, includeProperNouns) {
+        if (includeProperNouns === void 0) { includeProperNouns = true; }
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
@@ -73,12 +75,18 @@ var AnagramService = /** @class */ (function () {
                             switch (_a.label) {
                                 case 0:
                                     anagram = new Anagram_1.Anagram(word);
+                                    console.log(includeProperNouns);
                                     return [4 /*yield*/, this.dataConnector.getAnagrams(anagram.key, limit)];
                                 case 1:
                                     anagrams = (_a.sent()) || [];
                                     anagrams = anagrams.filter(function (anagram) {
-                                        return anagram.word !== word;
+                                        return anagram.word.charAt(0) === anagram.word.charAt(0).toUpperCase();
                                     });
+                                    if (!includeProperNouns) {
+                                        anagrams = anagrams.filter(function (anagram) {
+                                            return anagram.word[0] >= 'A' && anagram.word[0] <= 'Z';
+                                        });
+                                    }
                                     // TODO: Find a better place to put this
                                     if (limit) {
                                         anagrams = anagrams.slice(0, limit);

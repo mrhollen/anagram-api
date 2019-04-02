@@ -13,7 +13,9 @@ export class AnagramController {
         this.expressApp.get('/anagrams/:word.json', async (request, response) => {
             const word: string = request.params['word'];
             const limit: number = request.query['limit'];
-            const result = await this.anagramService.getAnagrams(word, limit);
+            const includeProperNouns: boolean = request.query['includeProperNouns'];
+
+            const result = await this.anagramService.getAnagrams(word, limit, includeProperNouns);
 
             response.json({ anagrams: result.map(a => a.word) });
         });
