@@ -1,4 +1,4 @@
 export enum ConnectorTypes {
-    InMemory,
-    Redis,
+    InMemory = "inMemory",
+    Redis = "redis",
 }

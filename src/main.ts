@@ -25,7 +25,6 @@ class App {
         this.appConfig = require("../appsettings.json");
 
         // TODO: Get this to be injected on startup
-        // TODO: Set this up using a config file
         let dataConnector: IDataConnector;
         if(this.appConfig.connectorType === ConnectorTypes.Redis) {
             dataConnector = new RedisDataConnector(this.appConfig.redisConfig.host, this.appConfig.redisConfig.port);
