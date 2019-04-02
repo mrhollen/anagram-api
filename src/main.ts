@@ -2,9 +2,9 @@ import http from "http"
 import express from "express";
 import { AnagramService } from "./services/AnagramService";
 import { InMemoryDataConnector } from "./data/InMemoryDataConnector";
+import { RedisDataConnector } from "./data/RedisDataConnector";
 import bodyParser = require("body-parser");
 import { AnagramController } from "./controllers/anagramController";
-import { RedisDataConnector } from "./data/RedisDataConnector";
 
 class App {
     public expressApp: express.Application;
@@ -21,6 +21,7 @@ class App {
         this.server = http.createServer();
 
         // TODO: Get this to be injected on startup
+        // TODO: Set this up using a config file
         //this.anagramService = new AnagramService(new InMemoryDataConnector());
         this.anagramService = new AnagramService(new RedisDataConnector('localhost', 6379));
         this.anagramService.initialize('./dst/data/dictionary.txt');

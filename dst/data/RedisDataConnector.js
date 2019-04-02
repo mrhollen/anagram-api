@@ -38,14 +38,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var Anagram_1 = require("./models/Anagram");
 var redis_1 = __importDefault(require("redis"));
 var util_1 = require("util");
 var RedisDataConnector = /** @class */ (function () {
     function RedisDataConnector(redisHost, redisPort) {
         this.redisClient = redis_1.default.createClient(redisPort, redisHost);
-        this.lRangeAsync = util_1.promisify(this.redisClient.lrange).bind(this.redisClient);
-        this.lSetAsync = util_1.promisify(this.redisClient.lset).bind(this.redisClient);
-        this.existsAsync = util_1.promisify(this.redisClient.exists).bind(this.redisClient);
+        // Setup all the promises
+        this.getAsync = util_1.promisify(this.redisClient.smembers).bind(this.redisClient);
+        this.addAsync = util_1.promisify(this.redisClient.sadd).bind(this.redisClient);
+        this.removeAsync = util_1.promisify(this.redisClient.srem).bind(this.redisClient);
+        this.getKeysAsync = util_1.promisify(this.redisClient.keys).bind(this.redisClient);
+        this.deleteKeyAsync = util_1.promisify(this.redisClient.del).bind(this.redisClient);
     }
     RedisDataConnector.prototype.getAnagrams = function (key, limit) {
         return __awaiter(this, void 0, void 0, function () {
@@ -55,10 +59,11 @@ var RedisDataConnector = /** @class */ (function () {
                         var foundAnagrams;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
-                                case 0: return [4 /*yield*/, this.lRangeAsync(key, 0, -1)];
+                                case 0: return [4 /*yield*/, this.getAsync("anagram." + key)];
                                 case 1:
                                     foundAnagrams = _a.sent();
-                                    resolve(foundAnagrams);
+                                    // Map the word strings to an Anagram[] and resolve the promise
+                                    resolve(foundAnagrams.map(function (a) { return new Anagram_1.Anagram(a, key); }));
                                     return [2 /*return*/];
                             }
                         });
@@ -71,25 +76,12 @@ var RedisDataConnector = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        var existingValue;
                         return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0:
-                                    existingValue = [];
-                                    return [4 /*yield*/, this.existsAsync(anagram.key)];
-                                case 1:
-                                    // If the key exists, pull the value into our variable
-                                    if (_a.sent()) {
-                                        existingValue = this.lRangeAsync(anagram.key, 0, -1);
-                                    }
-                                    // Make sure the word doesn't exist in the collection already
-                                    if (existingValue.filter(function (a) { return a.word === anagram.word; }).length === 0) {
-                                        existingValue.push(anagram);
-                                        this.lSetAsync(anagram.key, existingValue);
-                                    }
-                                    resolve();
-                                    return [2 /*return*/];
-                            }
+                            // Since we're using a set, each value can be added once and only once
+                            // We don't need to make sure there aren't duplicates
+                            this.addAsync("anagram." + anagram.key, anagram.word);
+                            resolve();
+                            return [2 /*return*/];
                         });
                     }); })];
             });
@@ -97,15 +89,45 @@ var RedisDataConnector = /** @class */ (function () {
     };
     RedisDataConnector.prototype.deleteAnagram = function (anagram) {
         return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
             return __generator(this, function (_a) {
-                throw new Error("Method not implemented.");
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            this.removeAsync("anagram." + anagram.key, anagram.word);
+                            resolve();
+                            return [2 /*return*/];
+                        });
+                    }); })];
             });
         });
     };
     RedisDataConnector.prototype.deleteAll = function () {
         return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
             return __generator(this, function (_a) {
-                throw new Error("Method not implemented.");
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        var keys;
+                        var _this = this;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, this.getKeysAsync("anagram.*")];
+                                case 1:
+                                    keys = _a.sent();
+                                    keys.forEach(function (key) { return __awaiter(_this, void 0, void 0, function () {
+                                        return __generator(this, function (_a) {
+                                            switch (_a.label) {
+                                                case 0: return [4 /*yield*/, this.deleteKeyAsync(key)];
+                                                case 1:
+                                                    _a.sent();
+                                                    return [2 /*return*/];
+                                            }
+                                        });
+                                    }); });
+                                    resolve();
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); })];
             });
         });
     };

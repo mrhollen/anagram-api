@@ -6,51 +6,63 @@ import { promisify } from 'util';
 
 export class RedisDataConnector implements IDataConnector {
     private redisClient: RedisClient;
-    private lRangeAsync: any;
-    private lSetAsync: any;
-    private existsAsync: any;
+
+    // All this is so we can use promises and avoid falling into the callback pit
+    private getAsync: (key: string) => Promise<string[]>;
+    private addAsync: (key: string, ...args: Array<string>) => Promise<number>;
+    private removeAsync: (key: string, ...args: Array<string>) => Promise<number>;
+    private getKeysAsync: (pattern: string) => Promise<string[]>;
+    private deleteKeyAsync: (key: string, ...args: Array<string>) => Promise<number>;
 
     constructor(redisHost: string, redisPort: number) {
         this.redisClient = redis.createClient(redisPort, redisHost);
-        this.lRangeAsync = promisify(this.redisClient.lrange).bind(this.redisClient);
-        this.lSetAsync = promisify(this.redisClient.lset).bind(this.redisClient);
-        this.existsAsync = promisify(this.redisClient.exists).bind(this.redisClient);
+
+        // Setup all the promises
+        this.getAsync = promisify(this.redisClient.smembers).bind(this.redisClient);
+        this.addAsync = promisify(this.redisClient.sadd).bind(this.redisClient);
+        this.removeAsync = promisify(this.redisClient.srem).bind(this.redisClient);
+        this.getKeysAsync = promisify(this.redisClient.keys).bind(this.redisClient);
+        this.deleteKeyAsync = promisify(this.redisClient.del).bind(this.redisClient);
     }
 
     public async getAnagrams(key: string, limit?: number | undefined): Promise<Anagram[]> {
         return new Promise(async (resolve, reject) => {
-            let foundAnagrams = await this.lRangeAsync(key, 0, -1);
+            const foundAnagrams = await this.getAsync(`anagram.${key}`);
 
-            resolve(foundAnagrams);
+            // Map the word strings to an Anagram[] and resolve the promise
+            resolve(foundAnagrams.map(a => new Anagram(a, key)));
         });
     }    
 
     public async addAnagram(anagram: import("./models/Anagram").Anagram): Promise<void> {
         return new Promise(async (resolve, reject) => {
-            // Create value for key
-            let existingValue: Anagram[] = [];
-
-            // If the key exists, pull the value into our variable
-            if(await this.existsAsync(anagram.key)) {
-                existingValue = this.lRangeAsync(anagram.key, 0, -1);
-            }
-            
-            // Make sure the word doesn't exist in the collection already
-            if(existingValue.filter(a => a.word === anagram.word).length === 0){
-                existingValue.push(anagram);
-                this.lSetAsync(anagram.key, existingValue);
-            }
+            // Since we're using a set, each value can be added once and only once
+            // We don't need to make sure there aren't duplicates
+            this.addAsync(`anagram.${anagram.key}`, anagram.word);
 
             resolve();
         });
     }
 
     public async deleteAnagram(anagram: import("./models/Anagram").Anagram): Promise<void> {
-        throw new Error("Method not implemented.");
+        return new Promise(async (resolve, reject) => {
+            this.removeAsync(`anagram.${anagram.key}`, anagram.word);
+
+            resolve();
+        });
     }
 
     public async deleteAll(): Promise<void> {
-        throw new Error("Method not implemented.");
+        return new Promise(async (resolve, reject) => {
+            // I wish redis supported deleting keys based on a patter
+            const keys = await this.getKeysAsync(`anagram.*`);
+
+            keys.forEach(async key => {
+                await this.deleteKeyAsync(key);
+            });
+
+            resolve();
+        });
     }
     
     public async getAnagramStatistics(): Promise<IAnagramStatistics> {
