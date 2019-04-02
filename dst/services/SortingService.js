@@ -16,7 +16,8 @@ var SortingService = /** @class */ (function () {
         return array;
     };
     SortingService.prototype.quickSort = function (array) {
-        throw new Error("Method Not Implemented");
+        // Cheat for now
+        return array.sort();
     };
     SortingService.prototype.swap = function (array, a, b) {
         var tempItem = array[a];

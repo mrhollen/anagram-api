@@ -13,7 +13,7 @@ export class AnagramController {
         this.expressApp.get('/anagrams/:word.json', async (request, response) => {
             const word: string = request.params['word'];
             const limit: number = request.query['limit'];
-            const result = await this.anagramService.getAnagrams(word.toLowerCase(), limit);
+            const result = await this.anagramService.getAnagrams(word, limit);
 
             response.json({ anagrams: result.map(a => a.word) });
         });
@@ -29,7 +29,7 @@ export class AnagramController {
             try {
                 const wordsToAdd: string[] = request.body['words'];
                 wordsToAdd.forEach(async word => {
-                    await this.anagramService.addWord(word.toLowerCase());
+                    await this.anagramService.addWord(word);
                 });
             } catch(error) {
                 response.sendStatus(500);
@@ -59,7 +59,7 @@ export class AnagramController {
         this.expressApp.delete('/words/:word.json', async (request, response) => {
             const word: string = request.params['word'];
 
-            await this.anagramService.deleteWord(word.toLowerCase());
+            await this.anagramService.deleteWord(word);
 
             response.sendStatus(204);
         });

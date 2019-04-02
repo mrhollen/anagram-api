@@ -51,7 +51,7 @@ var AnagramController = /** @class */ (function () {
                     case 0:
                         word = request.params['word'];
                         limit = request.query['limit'];
-                        return [4 /*yield*/, this.anagramService.getAnagrams(word.toLowerCase(), limit)];
+                        return [4 /*yield*/, this.anagramService.getAnagrams(word, limit)];
                     case 1:
                         result = _a.sent();
                         response.json({ anagrams: result.map(function (a) { return a.word; }) });
@@ -82,7 +82,7 @@ var AnagramController = /** @class */ (function () {
                     wordsToAdd.forEach(function (word) { return __awaiter(_this, void 0, void 0, function () {
                         return __generator(this, function (_a) {
                             switch (_a.label) {
-                                case 0: return [4 /*yield*/, this.anagramService.addWord(word.toLowerCase())];
+                                case 0: return [4 /*yield*/, this.anagramService.addWord(word)];
                                 case 1:
                                     _a.sent();
                                     return [2 /*return*/];
@@ -123,7 +123,7 @@ var AnagramController = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         word = request.params['word'];
-                        return [4 /*yield*/, this.anagramService.deleteWord(word.toLowerCase())];
+                        return [4 /*yield*/, this.anagramService.deleteWord(word)];
                     case 1:
                         _a.sent();
                         response.sendStatus(204);

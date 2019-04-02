@@ -7,16 +7,17 @@ var Anagram = /** @class */ (function () {
         // Otherwise we can just use the key we already have
         if (!key) {
             var sortingService = new SortingService_1.SortingService();
-            this.word = word.toLowerCase();
+            this.word = word;
+            var wordCharArray = word.toLowerCase().split('');
             // If the word is short there's no need to go through the extra overhead of quick sort
             // Realistically selection sort would probably work for most words
             // in the English language without much issue, but someone could put in some long nonsense
             // and cause some issues
-            if (word.length < 100) {
-                this.key = sortingService.selectionSort(word.split('')).toString();
+            if (word.length < 10) {
+                this.key = sortingService.selectionSort(wordCharArray).toString();
             }
             else {
-                this.key = sortingService.quickSort(word.split('')).toString();
+                this.key = sortingService.quickSort(wordCharArray).toString();
             }
         }
         else {
