@@ -21,10 +21,12 @@
   "homepage": "https://github.com/mrhollen/anagram-api#readme",
   "devDependencies": {
     "@types/body-parser": "^1.17.0",
-    "@types/express": "^4.16.1"
+    "@types/express": "^4.16.1",
+    "@types/redis": "^2.8.12"
   },
   "dependencies": {
     "body-parser": "^1.18.3",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "redis": "^2.8.0"
   }
 }

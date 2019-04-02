@@ -6,9 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = __importDefault(require("http"));
 var express_1 = __importDefault(require("express"));
 var AnagramService_1 = require("./services/AnagramService");
-var InMemoryDataConnector_1 = require("./data/InMemoryDataConnector");
 var bodyParser = require("body-parser");
 var anagramController_1 = require("./controllers/anagramController");
+var RedisDataConnector_1 = require("./data/RedisDataConnector");
 var App = /** @class */ (function () {
     function App() {
         this.expressApp = express_1.default();
@@ -16,8 +16,9 @@ var App = /** @class */ (function () {
         this.PORT = 3000;
         this.server = http_1.default.createServer();
         // TODO: Get this to be injected on startup
-        this.anagramService = new AnagramService_1.AnagramService(new InMemoryDataConnector_1.InMemoryDataConnector());
-        //this.anagramService.initialize('./dst/data/dictionary.txt');
+        //this.anagramService = new AnagramService(new InMemoryDataConnector());
+        this.anagramService = new AnagramService_1.AnagramService(new RedisDataConnector_1.RedisDataConnector('localhost', 6379));
+        this.anagramService.initialize('./dst/data/dictionary.txt');
         this.anagramController = new anagramController_1.AnagramController(this.expressApp, this.anagramService);
         this.route();
         this.startApp();
