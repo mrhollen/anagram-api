@@ -95,6 +95,16 @@ var InMemoryDataConnector = /** @class */ (function () {
             });
         }); });
     };
+    InMemoryDataConnector.prototype.deleteAnagramList = function (anagram) {
+        var _this = this;
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                this.anagrams.delete(anagram.key);
+                resolve();
+                return [2 /*return*/];
+            });
+        }); });
+    };
     InMemoryDataConnector.prototype.deleteAll = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {

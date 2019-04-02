@@ -61,6 +61,13 @@ export class InMemoryDataConnector implements IDataConnector {
         });
     }
 
+    public deleteAnagramList(anagram: Anagram): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            this.anagrams.delete(anagram.key);
+            resolve();
+        });
+    }
+
     public deleteAll(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.anagrams = new Map<string, Anagram[]>();

@@ -35,6 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var Anagram_1 = require("../models/Anagram");
 var AnagramController = /** @class */ (function () {
     function AnagramController(expressApp, anagramService) {
         this.expressApp = expressApp;
@@ -97,6 +98,24 @@ var AnagramController = /** @class */ (function () {
                 return [2 /*return*/];
             });
         }); });
+        // Check if list of words are anagrams of one another
+        this.expressApp.post('/check.json', function (request, response) { return __awaiter(_this, void 0, void 0, function () {
+            var words, anagramToCompare, i;
+            return __generator(this, function (_a) {
+                words = request.body['words'];
+                anagramToCompare = new Anagram_1.Anagram(words[0]);
+                for (i = 1; i < words.length; i++) {
+                    // Send false if we find one that doesn't match the first
+                    if (anagramToCompare.key !== new Anagram_1.Anagram(words[i]).key) {
+                        response.send(false);
+                        return [2 /*return*/];
+                    }
+                }
+                // If we didn't return false, then they must all match
+                response.send(true);
+                return [2 /*return*/];
+            });
+        }); });
         // Delete a word from anagrams list
         this.expressApp.delete('/words/:word.json', function (request, response) { return __awaiter(_this, void 0, void 0, function () {
             var word;
@@ -105,6 +124,21 @@ var AnagramController = /** @class */ (function () {
                     case 0:
                         word = request.params['word'];
                         return [4 /*yield*/, this.anagramService.deleteWord(word.toLowerCase())];
+                    case 1:
+                        _a.sent();
+                        response.sendStatus(204);
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        // Delete word and it's anagrams
+        this.expressApp.delete('/anagrams/:word.json', function (request, response) { return __awaiter(_this, void 0, void 0, function () {
+            var word;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        word = request.params['word'];
+                        return [4 /*yield*/, this.anagramService.deleteAnagramList(word)];
                     case 1:
                         _a.sent();
                         response.sendStatus(204);

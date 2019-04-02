@@ -54,6 +54,14 @@ export class AnagramService {
         });
     }
 
+    public async deleteAnagramList(word: string): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            const anagram = new Anagram(word);
+            await this.dataConnector.deleteAnagramList(anagram);
+            resolve();
+        });
+    }
+
     public async deleteAll(): Promise<void> {
         return new Promise(async (resolve, reject) => {
             await this.dataConnector.deleteAll();

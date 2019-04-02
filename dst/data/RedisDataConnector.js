@@ -102,6 +102,24 @@ var RedisDataConnector = /** @class */ (function () {
             });
         });
     };
+    RedisDataConnector.prototype.deleteAnagramList = function (anagram) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, this.deleteKeyAsync("anagram." + anagram.key)];
+                                case 1:
+                                    _a.sent();
+                                    resolve();
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); })];
+            });
+        });
+    };
     RedisDataConnector.prototype.deleteAll = function () {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;

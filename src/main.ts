@@ -22,8 +22,10 @@ class App {
         this.expressApp.use(bodyParser.json());
         this.server = http.createServer();
 
+        // Read in the config as an object for easy access
         this.appConfig = require("../appsettings.json");
 
+        // Setup our data connections based on the config provided
         // TODO: Get this to be injected on startup
         let dataConnector: IDataConnector;
         if(this.appConfig.connectorType === ConnectorTypes.Redis) {
@@ -34,12 +36,17 @@ class App {
             dataConnector = new InMemoryDataConnector();
         }
 
+        // Setup Services
         this.anagramService = new AnagramService(dataConnector);
         this.anagramService.initialize('./dst/data/dictionary.txt');
 
+        // Setup Controllers
         this.anagramController = new AnagramController(this.expressApp, this.anagramService);
 
+        // Make express aware of the routes in our controllers
         this.route();
+
+        // Start the app and kick butt
         this.startApp();
     }
 

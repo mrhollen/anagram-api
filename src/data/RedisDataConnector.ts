@@ -54,6 +54,13 @@ export class RedisDataConnector implements IDataConnector {
         });
     }
 
+    public async deleteAnagramList(anagram: Anagram): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            await this.deleteKeyAsync(`anagram.${anagram.key}`);
+            resolve();
+        });
+    }
+
     public async deleteAll(): Promise<void> {
         return new Promise(async (resolve, reject) => {
             // I wish redis supported deleting keys based on a patter

@@ -16,7 +16,9 @@ var App = /** @class */ (function () {
         this.expressApp = express_1.default();
         this.expressApp.use(bodyParser.json());
         this.server = http_1.default.createServer();
+        // Read in the config as an object for easy access
         this.appConfig = require("../appsettings.json");
+        // Setup our data connections based on the config provided
         // TODO: Get this to be injected on startup
         var dataConnector;
         if (this.appConfig.connectorType === ConnectorTypes_1.ConnectorTypes.Redis) {
@@ -28,10 +30,14 @@ var App = /** @class */ (function () {
         else {
             dataConnector = new InMemoryDataConnector_1.InMemoryDataConnector();
         }
+        // Setup Services
         this.anagramService = new AnagramService_1.AnagramService(dataConnector);
         this.anagramService.initialize('./dst/data/dictionary.txt');
+        // Setup Controllers
         this.anagramController = new anagramController_1.AnagramController(this.expressApp, this.anagramService);
+        // Make express aware of the routes in our controllers
         this.route();
+        // Start the app and kick butt
         this.startApp();
     }
     App.prototype.route = function () {

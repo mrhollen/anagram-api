@@ -1,5 +1,6 @@
 import express from "express";
 import { AnagramService } from "../services/AnagramService";
+import { Anagram } from "../models/Anagram";
 
 export class AnagramController {
 
@@ -37,12 +38,37 @@ export class AnagramController {
 
             response.sendStatus(201);
         });
+
+        // Check if list of words are anagrams of one another
+        this.expressApp.post('/check.json', async (request, response) => {
+            const words: string[] = request.body['words'];
+            const anagramToCompare = new Anagram(words[0]);
+            for(let i = 1; i < words.length; i++) {
+                // Send false if we find one that doesn't match the first
+                if(anagramToCompare.key !== new Anagram(words[i]).key) {
+                    response.send(false);
+                    return;
+                }
+            }
+
+            // If we didn't return false, then they must all match
+            response.send(true);
+        });
         
         // Delete a word from anagrams list
         this.expressApp.delete('/words/:word.json', async (request, response) => {
             const word: string = request.params['word'];
 
             await this.anagramService.deleteWord(word.toLowerCase());
+
+            response.sendStatus(204);
+        });
+
+        // Delete word and it's anagrams
+        this.expressApp.delete('/anagrams/:word.json', async (request, response) => {
+            const word: string = request.params['word'];
+
+            await this.anagramService.deleteAnagramList(word);
 
             response.sendStatus(204);
         });
