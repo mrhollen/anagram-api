@@ -43,17 +43,22 @@ var redis_1 = __importDefault(require("redis"));
 var util_1 = require("util");
 var RedisDataConnector = /** @class */ (function () {
     function RedisDataConnector(redisHost, redisPort) {
+        console.log("Connecting to redis host at " + redisHost + ":" + redisPort + "...");
         this.redisClient = redis_1.default.createClient(redisPort, redisHost);
+        console.log("Connected!");
         this.updateStatistics = true;
         // Setup all the promises
         this.getAsync = util_1.promisify(this.redisClient.get).bind(this.redisClient);
         this.getSetAsync = util_1.promisify(this.redisClient.smembers).bind(this.redisClient);
         this.setAddAsync = util_1.promisify(this.redisClient.sadd).bind(this.redisClient);
         this.removeFromSetAsync = util_1.promisify(this.redisClient.srem).bind(this.redisClient);
-        this.getSetCardalityAsync = util_1.promisify(this.redisClient.scard).bind(this.redisClient);
+        this.getSortedSetCardalityAsync = util_1.promisify(this.redisClient.zcard).bind(this.redisClient);
         this.getKeysAsync = util_1.promisify(this.redisClient.keys).bind(this.redisClient);
         this.deleteKeyAsync = util_1.promisify(this.redisClient.del).bind(this.redisClient);
         this.setAsync = util_1.promisify(this.redisClient.set).bind(this.redisClient);
+        this.getSortedSetAsync = util_1.promisify(this.redisClient.zrange).bind(this.redisClient);
+        this.addSortedSetAsync = util_1.promisify(this.redisClient.zadd).bind(this.redisClient);
+        this.removeSortedSetAsync = util_1.promisify(this.redisClient.zrem).bind(this.redisClient);
     }
     RedisDataConnector.prototype.getAnagrams = function (key, limit) {
         return __awaiter(this, void 0, void 0, function () {
@@ -82,6 +87,9 @@ var RedisDataConnector = /** @class */ (function () {
                         // Since we're using a set, each value can be added once and only once
                         // We don't need to make sure there aren't duplicates
                         _a.sent();
+                        return [4 /*yield*/, this.addSortedSetAsync('all', anagram.word)];
+                    case 2:
+                        _a.sent();
                         this.updateStatistics = true;
                         return [2 /*return*/];
                 }
@@ -95,6 +103,9 @@ var RedisDataConnector = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.removeFromSetAsync("anagram." + anagram.key, anagram.word)];
                     case 1:
                         _a.sent();
+                        return [4 /*yield*/, this.removeSortedSetAsync('all', anagram.word)];
+                    case 2:
+                        _a.sent();
                         this.updateStatistics = true;
                         return [2 /*return*/];
                 }
@@ -103,10 +114,21 @@ var RedisDataConnector = /** @class */ (function () {
     };
     RedisDataConnector.prototype.deleteAnagramList = function (anagram) {
         return __awaiter(this, void 0, void 0, function () {
+            var wordsToDelete;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.deleteKeyAsync("anagram." + anagram.key)];
+                    case 0: return [4 /*yield*/, this.getSetAsync("anagram." + anagram.key)];
                     case 1:
+                        wordsToDelete = _a.sent();
+                        // Remove them all
+                        return [4 /*yield*/, this.removeSortedSetAsync.apply(this, ['all'].concat(wordsToDelete))];
+                    case 2:
+                        // Remove them all
+                        _a.sent();
+                        // Delete the key
+                        return [4 /*yield*/, this.deleteKeyAsync("anagram." + anagram.key)];
+                    case 3:
+                        // Delete the key
                         _a.sent();
                         this.updateStatistics = true;
                         return [2 /*return*/];
@@ -123,6 +145,7 @@ var RedisDataConnector = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.getKeysAsync("anagram.*")];
                     case 1:
                         keys = _a.sent();
+                        // Delete them all
                         keys.forEach(function (key) { return __awaiter(_this, void 0, void 0, function () {
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
@@ -133,7 +156,14 @@ var RedisDataConnector = /** @class */ (function () {
                                 }
                             });
                         }); });
-                        this.clearStatisticsAndSave();
+                        // Clear the sorted set of words
+                        return [4 /*yield*/, this.deleteKeyAsync('all')];
+                    case 2:
+                        // Clear the sorted set of words
+                        _a.sent();
+                        return [4 /*yield*/, this.clearStatisticsAndSave()];
+                    case 3:
+                        _a.sent();
                         this.updateStatistics = true;
                         return [2 /*return*/];
                 }
@@ -245,31 +275,19 @@ var RedisDataConnector = /** @class */ (function () {
     };
     RedisDataConnector.prototype.getAllWords = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var words, keys, _i, keys_1, key, set, _a, set_1, item;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var words, sortedWords, _i, sortedWords_1, word;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         words = [];
-                        return [4 /*yield*/, this.getKeysAsync("anagram.*")];
+                        return [4 /*yield*/, this.getKeysAsync("all")];
                     case 1:
-                        keys = _b.sent();
-                        _i = 0, keys_1 = keys;
-                        _b.label = 2;
-                    case 2:
-                        if (!(_i < keys_1.length)) return [3 /*break*/, 5];
-                        key = keys_1[_i];
-                        return [4 /*yield*/, this.getSetAsync(key)];
-                    case 3:
-                        set = _b.sent();
-                        for (_a = 0, set_1 = set; _a < set_1.length; _a++) {
-                            item = set_1[_a];
-                            words.push(item);
+                        sortedWords = _a.sent();
+                        for (_i = 0, sortedWords_1 = sortedWords; _i < sortedWords_1.length; _i++) {
+                            word = sortedWords_1[_i];
+                            words.push(word);
                         }
-                        _b.label = 4;
-                    case 4:
-                        _i++;
-                        return [3 /*break*/, 2];
-                    case 5: return [2 /*return*/, words.sort()];
+                        return [2 /*return*/, words.sort()];
                 }
             });
         });

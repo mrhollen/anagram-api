@@ -29,6 +29,7 @@ class App {
         // TODO: Get this to be injected on startup
         let dataConnector: IDataConnector;
         if(this.appConfig.connectorType === ConnectorTypes.Redis) {
+            console.log(this.appConfig.redisConfig.host);
             dataConnector = new RedisDataConnector(this.appConfig.redisConfig.host, this.appConfig.redisConfig.port);
         } else if(this.appConfig.connectorType === ConnectorTypes.InMemory) {
             dataConnector = new InMemoryDataConnector();

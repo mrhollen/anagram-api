@@ -13,13 +13,18 @@ export class RedisDataConnector implements IDataConnector {
     private getSetAsync: (key: string) => Promise<string[]>;
     private setAddAsync: (key: string, ...args: Array<string>) => Promise<number>;
     private removeFromSetAsync: (key: string, ...args: Array<string>) => Promise<number>;
-    private getSetCardalityAsync: (key: string) => Promise<number>;
     private getKeysAsync: (pattern: string) => Promise<string[]>;
     private deleteKeyAsync: (key: string, ...args: Array<string>) => Promise<number>;
     private setAsync: (key: string, value: string) => Promise<any>;
+    private getSortedSetCardalityAsync: (key: string) => Promise<number>;
+    private getSortedSetAsync: (key: string, start: number, end: number) => Promise<any>;
+    private addSortedSetAsync: (key: string, ...args: Array<string>) => Promise<number>;
+    private removeSortedSetAsync: (key: string, ...args: Array<string>) => Promise<number>;
 
     constructor(redisHost: string, redisPort: number) {
+        console.log(`Connecting to redis host at ${redisHost}:${redisPort}...`);
         this.redisClient = redis.createClient(redisPort, redisHost);
+        console.log(`Connected!`);
         this.updateStatistics = true;
 
         // Setup all the promises
@@ -27,10 +32,13 @@ export class RedisDataConnector implements IDataConnector {
         this.getSetAsync = promisify(this.redisClient.smembers).bind(this.redisClient);
         this.setAddAsync = promisify(this.redisClient.sadd).bind(this.redisClient);
         this.removeFromSetAsync = promisify(this.redisClient.srem).bind(this.redisClient);
-        this.getSetCardalityAsync = promisify(this.redisClient.scard).bind(this.redisClient);
+        this.getSortedSetCardalityAsync = promisify(this.redisClient.zcard).bind(this.redisClient);
         this.getKeysAsync = promisify(this.redisClient.keys).bind(this.redisClient);
         this.deleteKeyAsync = promisify(this.redisClient.del).bind(this.redisClient);
         this.setAsync= promisify(this.redisClient.set).bind(this.redisClient);
+        this.getSortedSetAsync = promisify(this.redisClient.zrange).bind(this.redisClient);
+        this.addSortedSetAsync = promisify(this.redisClient.zadd).bind(this.redisClient);
+        this.removeSortedSetAsync = promisify(this.redisClient.zrem).bind(this.redisClient);
     }
 
     public async getAnagrams(key: string, limit?: number | undefined): Promise<Anagram[]> {
@@ -46,28 +54,39 @@ export class RedisDataConnector implements IDataConnector {
         // Since we're using a set, each value can be added once and only once
         // We don't need to make sure there aren't duplicates
         await this.setAddAsync(`anagram.${anagram.key}`, anagram.word);
+        await this.addSortedSetAsync('all', anagram.word);
         this.updateStatistics = true;
     }
 
     public async deleteAnagram(anagram: Anagram): Promise<void> {
         await this.removeFromSetAsync(`anagram.${anagram.key}`, anagram.word);
+        await this.removeSortedSetAsync('all', anagram.word);
         this.updateStatistics = true;
     }
 
     public async deleteAnagramList(anagram: Anagram): Promise<void> {
+        // Get the words we need to remove from our sorted set of words
+        const wordsToDelete = await this.getSetAsync(`anagram.${anagram.key}`);
+        // Remove them all
+        await this.removeSortedSetAsync('all', ...wordsToDelete);
+
+        // Delete the key
         await this.deleteKeyAsync(`anagram.${anagram.key}`);
         this.updateStatistics = true;
     }
 
     public async deleteAll(): Promise<void> {
-        // I wish redis supported deleting keys based on a patter
+        // I wish redis supported deleting keys based on a pattern
         const keys = await this.getKeysAsync(`anagram.*`);
-
+        // Delete them all
         keys.forEach(async key => {
             await this.deleteKeyAsync(key);
         });
 
-        this.clearStatisticsAndSave();
+        // Clear the sorted set of words
+        await this.deleteKeyAsync('all');
+
+        await this.clearStatisticsAndSave();
         this.updateStatistics = true;
     }
     
@@ -161,12 +180,9 @@ export class RedisDataConnector implements IDataConnector {
     private async getAllWords(): Promise<string[]> {
         const words: string[] = [];
 
-        const keys = await this.getKeysAsync(`anagram.*`);
-        for(const key of keys){
-            const set = await this.getSetAsync(key);
-            for(const item of set){
-                words.push(item);
-            }
+        const sortedWords = await this.getKeysAsync(`all`);
+        for(const word of sortedWords){
+            words.push(word);
         }
 
         return words.sort();
