@@ -61,4 +61,4 @@ typings/
 .next
 
 # appsettings.json
-appsettings.json
+/appsettings.json
