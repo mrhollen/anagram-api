@@ -182,4 +182,20 @@ class TestCases < Test::Unit::TestCase
 
     assert_equal(false, body)
   end
+
+  def test_statistics
+
+    # call check endpoint
+    res = @client.get('/statistics.json')
+
+    assert_equal('200', res.code, "Unexpected response code")
+
+    body = JSON.parse(res.body)
+
+    assert_equal(5, body['totalWords'])
+    assert_equal(9, body['longestLength'])
+    assert_equal(4, body['shortestLength'])
+    assert_equal(6, body['averageLength'])
+    assert_equal(4, body['medianLength'])
+  end
 end

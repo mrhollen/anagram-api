@@ -44,116 +44,233 @@ var util_1 = require("util");
 var RedisDataConnector = /** @class */ (function () {
     function RedisDataConnector(redisHost, redisPort) {
         this.redisClient = redis_1.default.createClient(redisPort, redisHost);
+        this.updateStatistics = true;
         // Setup all the promises
-        this.getAsync = util_1.promisify(this.redisClient.smembers).bind(this.redisClient);
-        this.getElementCountAsync = util_1.promisify(this.redisClient.scard).bind(this.redisClient);
-        this.addAsync = util_1.promisify(this.redisClient.sadd).bind(this.redisClient);
-        this.removeAsync = util_1.promisify(this.redisClient.srem).bind(this.redisClient);
+        this.getAsync = util_1.promisify(this.redisClient.get).bind(this.redisClient);
+        this.getSetAsync = util_1.promisify(this.redisClient.smembers).bind(this.redisClient);
+        this.setAddAsync = util_1.promisify(this.redisClient.sadd).bind(this.redisClient);
+        this.removeFromSetAsync = util_1.promisify(this.redisClient.srem).bind(this.redisClient);
+        this.getSetCardalityAsync = util_1.promisify(this.redisClient.scard).bind(this.redisClient);
         this.getKeysAsync = util_1.promisify(this.redisClient.keys).bind(this.redisClient);
         this.deleteKeyAsync = util_1.promisify(this.redisClient.del).bind(this.redisClient);
+        this.setAsync = util_1.promisify(this.redisClient.set).bind(this.redisClient);
     }
     RedisDataConnector.prototype.getAnagrams = function (key, limit) {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
+            var foundAnagrams;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        var foundAnagrams;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0: return [4 /*yield*/, this.getAsync("anagram." + key)];
-                                case 1:
-                                    foundAnagrams = _a.sent();
-                                    // Map the word strings to an Anagram[] and resolve the promise
-                                    resolve(foundAnagrams.map(function (a) { return new Anagram_1.Anagram(a, key); }));
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getSetAsync("anagram." + key)];
+                    case 1:
+                        foundAnagrams = _a.sent();
+                        this.updateStatistics = true;
+                        // Map the word strings to an Anagram[] and resolve the promise
+                        return [2 /*return*/, foundAnagrams.map(function (a) { return new Anagram_1.Anagram(a, key); })];
+                }
             });
         });
     };
     RedisDataConnector.prototype.addAnagram = function (anagram) {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        return __generator(this, function (_a) {
-                            // Since we're using a set, each value can be added once and only once
-                            // We don't need to make sure there aren't duplicates
-                            this.addAsync("anagram." + anagram.key, anagram.word);
-                            resolve();
-                            return [2 /*return*/];
-                        });
-                    }); })];
+                switch (_a.label) {
+                    case 0: 
+                    // Since we're using a set, each value can be added once and only once
+                    // We don't need to make sure there aren't duplicates
+                    return [4 /*yield*/, this.setAddAsync("anagram." + anagram.key, anagram.word)];
+                    case 1:
+                        // Since we're using a set, each value can be added once and only once
+                        // We don't need to make sure there aren't duplicates
+                        _a.sent();
+                        this.updateStatistics = true;
+                        return [2 /*return*/];
+                }
             });
         });
     };
     RedisDataConnector.prototype.deleteAnagram = function (anagram) {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        return __generator(this, function (_a) {
-                            this.removeAsync("anagram." + anagram.key, anagram.word);
-                            resolve();
-                            return [2 /*return*/];
-                        });
-                    }); })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.removeFromSetAsync("anagram." + anagram.key, anagram.word)];
+                    case 1:
+                        _a.sent();
+                        this.updateStatistics = true;
+                        return [2 /*return*/];
+                }
             });
         });
     };
     RedisDataConnector.prototype.deleteAnagramList = function (anagram) {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0: return [4 /*yield*/, this.deleteKeyAsync("anagram." + anagram.key)];
-                                case 1:
-                                    _a.sent();
-                                    resolve();
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.deleteKeyAsync("anagram." + anagram.key)];
+                    case 1:
+                        _a.sent();
+                        this.updateStatistics = true;
+                        return [2 /*return*/];
+                }
             });
         });
     };
     RedisDataConnector.prototype.deleteAll = function () {
         return __awaiter(this, void 0, void 0, function () {
+            var keys;
             var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        var keys;
-                        var _this = this;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0: return [4 /*yield*/, this.getKeysAsync("anagram.*")];
-                                case 1:
-                                    keys = _a.sent();
-                                    keys.forEach(function (key) { return __awaiter(_this, void 0, void 0, function () {
-                                        return __generator(this, function (_a) {
-                                            switch (_a.label) {
-                                                case 0: return [4 /*yield*/, this.deleteKeyAsync(key)];
-                                                case 1:
-                                                    _a.sent();
-                                                    return [2 /*return*/];
-                                            }
-                                        });
-                                    }); });
-                                    resolve();
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getKeysAsync("anagram.*")];
+                    case 1:
+                        keys = _a.sent();
+                        keys.forEach(function (key) { return __awaiter(_this, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, this.deleteKeyAsync(key)];
+                                    case 1:
+                                        _a.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                        this.clearStatisticsAndSave();
+                        this.updateStatistics = true;
+                        return [2 /*return*/];
+                }
             });
         });
     };
     RedisDataConnector.prototype.getAnagramStatistics = function () {
         return __awaiter(this, void 0, void 0, function () {
+            var statisticsString;
             return __generator(this, function (_a) {
-                throw new Error("Method not implemented.");
+                switch (_a.label) {
+                    case 0:
+                        if (!this.updateStatistics) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.calculateStatisticsAndSave()];
+                    case 1:
+                        _a.sent();
+                        _a.label = 2;
+                    case 2: return [4 /*yield*/, this.getAsync('statistics')];
+                    case 3:
+                        statisticsString = _a.sent();
+                        return [2 /*return*/, JSON.parse(statisticsString)];
+                }
+            });
+        });
+    };
+    RedisDataConnector.prototype.saveStatistics = function (statistics) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.setAsync('statistics', JSON.stringify(statistics))];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    RedisDataConnector.prototype.clearStatisticsAndSave = function () {
+        this.updateStatistics = false;
+        this.saveStatistics({
+            totalWords: 0,
+            longestLength: 0,
+            shortestLength: 0,
+            averageLength: 0,
+            medianLength: 0,
+        });
+    };
+    RedisDataConnector.prototype.calculateStatisticsAndSave = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var words, longestWord, shortestWord;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.updateStatistics = false;
+                        return [4 /*yield*/, this.getAllWords()];
+                    case 1:
+                        words = _a.sent();
+                        longestWord = this.findLongestWord(words);
+                        shortestWord = this.findShortestWord(words);
+                        this.saveStatistics({
+                            totalWords: words.length,
+                            longestLength: longestWord ? longestWord.length : 0,
+                            shortestLength: shortestWord ? shortestWord.length : 0,
+                            averageLength: this.getAverageWordLength(words),
+                            medianLength: this.findMedianWordLength(words),
+                        });
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    RedisDataConnector.prototype.findLongestWord = function (words) {
+        var longestSoFar;
+        words.forEach(function (word) {
+            if (!longestSoFar || word.length > longestSoFar.length) {
+                longestSoFar = word;
+            }
+        });
+        return longestSoFar;
+    };
+    RedisDataConnector.prototype.findShortestWord = function (words) {
+        var shortestSoFar;
+        words.forEach(function (word) {
+            if (!shortestSoFar || word.length < shortestSoFar.length) {
+                shortestSoFar = word;
+            }
+        });
+        return shortestSoFar;
+    };
+    RedisDataConnector.prototype.getAverageWordLength = function (words) {
+        if (words.length > 0) {
+            var totalCharacterCount_1 = 0;
+            words.forEach(function (word) {
+                totalCharacterCount_1 += word.length;
+            });
+            return Math.floor(totalCharacterCount_1 / words.length);
+        }
+        else {
+            return 0;
+        }
+    };
+    RedisDataConnector.prototype.findMedianWordLength = function (words) {
+        if (words.length > 0) {
+            return words[Math.floor(words.length / 2)].length;
+        }
+        else {
+            return 0;
+        }
+    };
+    RedisDataConnector.prototype.getAllWords = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var words, keys, _i, keys_1, key, set, _a, set_1, item;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        words = [];
+                        return [4 /*yield*/, this.getKeysAsync("anagram.*")];
+                    case 1:
+                        keys = _b.sent();
+                        _i = 0, keys_1 = keys;
+                        _b.label = 2;
+                    case 2:
+                        if (!(_i < keys_1.length)) return [3 /*break*/, 5];
+                        key = keys_1[_i];
+                        return [4 /*yield*/, this.getSetAsync(key)];
+                    case 3:
+                        set = _b.sent();
+                        for (_a = 0, set_1 = set; _a < set_1.length; _a++) {
+                            item = set_1[_a];
+                            words.push(item);
+                        }
+                        _b.label = 4;
+                    case 4:
+                        _i++;
+                        return [3 /*break*/, 2];
+                    case 5: return [2 /*return*/, words.sort()];
+                }
             });
         });
     };
