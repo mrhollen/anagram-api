@@ -1,0 +1,17 @@
+version: "3.3"
+services:
+  anagram-app:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - "redis"
+    links:
+      - "redis:redis"
+
+  redis:
+    image: "redis"
+    expose: 
+      - "6379"
