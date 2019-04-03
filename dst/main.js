@@ -32,7 +32,9 @@ var App = /** @class */ (function () {
         }
         // Setup Services
         this.anagramService = new AnagramService_1.AnagramService(dataConnector);
-        this.anagramService.initialize('./dst/data/dictionary.txt');
+        if (this.appConfig.useDictionaryFile) {
+            this.anagramService.initialize(this.appConfig.dictionaryFile);
+        }
         // Setup Controllers
         this.anagramController = new anagramController_1.AnagramController(this.expressApp, this.anagramService);
         // Make express aware of the routes in our controllers

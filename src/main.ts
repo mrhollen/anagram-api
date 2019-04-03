@@ -38,7 +38,9 @@ class App {
 
         // Setup Services
         this.anagramService = new AnagramService(dataConnector);
-        this.anagramService.initialize('./dst/data/dictionary.txt');
+        if(this.appConfig.useDictionaryFile) {
+            this.anagramService.initialize(this.appConfig.dictionaryFile);
+        }
 
         // Setup Controllers
         this.anagramController = new AnagramController(this.expressApp, this.anagramService);

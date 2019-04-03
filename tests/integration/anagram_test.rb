@@ -13,7 +13,7 @@ class TestCases < Test::Unit::TestCase
     @client = AnagramClient.new(ARGV)
 
     # add words to the dictionary
-    @client.post('/words.json', nil, {"words" => ["read", "dear", "dare", "Saphire", "asphire"] }) rescue nil
+    @client.post('/words.json', nil, {"words" => ["read", "dear", "dare", "Saphiress", "asphiress"] }) rescue nil
   end
 
   # runs after each test
@@ -59,7 +59,7 @@ class TestCases < Test::Unit::TestCase
   def test_fetching_anagrams_with_proper_nouns
 
     # fetch anagrams with limit
-    res = @client.get('/anagrams/hiresap.json', 'includeProperNouns=true')
+    res = @client.get('/anagrams/hiresapss.json', 'noProperNouns=false')
 
     assert_equal('200', res.code, "Unexpected response code")
 
@@ -71,7 +71,7 @@ class TestCases < Test::Unit::TestCase
   def test_fetching_anagrams_with_no_proper_nouns
 
     # fetch anagrams with limit
-    res = @client.get('/anagrams/hiresap.json', 'includeProperNouns=false')
+    res = @client.get('/anagrams/hiresapss.json', 'noProperNouns=true')
 
     assert_equal('200', res.code, "Unexpected response code")
 

@@ -21,20 +21,18 @@ export class AnagramService {
         });
     }
 
-    public async getAnagrams(word: string, limit: number, includeProperNouns: boolean = true): Promise<Anagram[]> {
+    public async getAnagrams(word: string, limit: number, noProperNouns: boolean = false): Promise<Anagram[]> {
         return new Promise(async (resolve, reject) => {
             const anagram = new Anagram(word);
-            
-            console.log(includeProperNouns);
     
             let anagrams = await this.dataConnector.getAnagrams(anagram.key, limit) || [];
             anagrams = anagrams.filter(anagram => {
-                return anagram.word.charAt(0) === anagram.word.charAt(0).toUpperCase();
+                return anagram.word !== word;
             });
 
-            if(!includeProperNouns){
+            if(noProperNouns){
                 anagrams = anagrams.filter(anagram => {
-                   return anagram.word[0] >= 'A' && anagram.word[0] <= 'Z';
+                    return anagram.word.charAt(0) !== anagram.word.charAt(0).toUpperCase();
                 });
             }
 

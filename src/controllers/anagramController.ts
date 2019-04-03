@@ -13,9 +13,12 @@ export class AnagramController {
         this.expressApp.get('/anagrams/:word.json', async (request, response) => {
             const word: string = request.params['word'];
             const limit: number = request.query['limit'];
-            const includeProperNouns: boolean = request.query['includeProperNouns'];
+            const noProperNounsParam: string = request.query['noProperNouns'];
 
-            const result = await this.anagramService.getAnagrams(word, limit, includeProperNouns);
+            // Parse out the boolean since it'll default to just checking if the parameter exists
+            const noProperNouns: boolean = noProperNounsParam === 'true' || noProperNounsParam === '1';
+
+            const result = await this.anagramService.getAnagrams(word, limit, noProperNouns);
 
             response.json({ anagrams: result.map(a => a.word) });
         });
