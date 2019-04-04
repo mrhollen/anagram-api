@@ -133,4 +133,8 @@ Here are some things I think could be done in the future to improve the project 
 
 ## Some Things I've Noticed
 - Node really likes to eat up memory, unless you force garbage collection. I noticed it would happily use up to 1GB+ memory on my machine, but when the garbage collector was run manually, the memory usage would fall to about 60MB.
+<<<<<<< Updated upstream
 - Looping through sets in redis is **not** performant in any way
+=======
+- Looping through sets in redis is **not** performant in any way
+>>>>>>> Stashed changes

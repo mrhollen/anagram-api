@@ -1,7 +1,6 @@
 import { IDataConnector } from './IDataConnector';
 import { Anagram } from '../models/Anagram';
 import { IAnagramStatistics } from '../models/IAnagramStatistics';
-import { resolve } from 'url';
 
 export class InMemoryDataConnector implements IDataConnector {
     private anagrams: Map<string, Anagram[]>;
