@@ -1,7 +1,7 @@
 # anagram-api
 
 ## About
-This is my solution for the take-home Anagram Rest API project. It's written in Typescript and uses Node along with Express to create an http server. It can either be run using either Redis as a datastore, or by storing all the data in memory.
+This is my solution for the take-home Anagram Rest API project. It's written in Typescript and uses Node along with Express to create an http server. It can either be run using either Redis as a datastore, or by storing all the data in memory. [Continued Below](#about-continued)
 
 ## Dependencies
 ### Development
@@ -31,4 +31,8 @@ This is my solution for the take-home Anagram Rest API project. It's written in 
      - Start the app with `npm start`
 - To run the app using **docker-compose**:
     - Create or modify the `appsettings.json` file in the docker folder
-    - Run `buildAndRunDockerCompose.sh` in the project root
+    - *Either* run `buildAndRunDockerCompose.sh` in the project root
+    - *Or* run the command `docker-compose --project-directory ./ -f ./docker/docker-compose.yml build`
+    - and then `docker-compose --project-directory ./ -f ./docker/docker-compose.yml up`
+
+## About Continued
