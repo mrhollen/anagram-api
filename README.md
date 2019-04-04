@@ -22,10 +22,12 @@ This is my solution for the take-home Anagram Rest API project. It's written in 
 
 ## How to Run
 - To run the app just **in memory**:
+     - Run `npm install` in project root to restore node_modules
      - Create `appsettings.json` in the project root. There is a sample config file called appsettings-in-memory.json
      - Start the app with `npm start`
 
 - To run the app using **redis**:
+     - Run `npm install` in project root to restore node_modules
      - Create `appsettings.json` in the project root. There is a sample config file called appsettings-redis.json
      - Make sure the Redis server is running and accessible
      - Start the app with `npm start`
