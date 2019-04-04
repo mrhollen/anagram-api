@@ -44,8 +44,7 @@ var AnagramService = /** @class */ (function () {
     }
     // Preload our datastore with anagrams
     AnagramService.prototype.initialize = function (source) {
-        var _this = this;
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var readFileAsync, data;
             var _this = this;
             return __generator(this, function (_a) {
@@ -55,146 +54,130 @@ var AnagramService = /** @class */ (function () {
                         return [4 /*yield*/, readFileAsync(source, 'utf-8')];
                     case 1:
                         data = _a.sent();
-                        data.split('\n').forEach(function (word) {
-                            _this.dataConnector.addAnagram(new Anagram_1.Anagram(word));
-                        });
-                        resolve();
+                        data.split('\n').forEach(function (word) { return __awaiter(_this, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                if (word.trim() !== '') {
+                                    this.dataConnector.addAnagram(new Anagram_1.Anagram(word));
+                                }
+                                return [2 /*return*/];
+                            });
+                        }); });
                         return [2 /*return*/];
                 }
             });
-        }); });
+        });
     };
     AnagramService.prototype.getAnagrams = function (word, limit, noProperNouns) {
         if (noProperNouns === void 0) { noProperNouns = false; }
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
+            var anagram, anagrams;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        var anagram, anagrams;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0:
-                                    anagram = new Anagram_1.Anagram(word);
-                                    return [4 /*yield*/, this.dataConnector.getAnagrams(anagram.key, limit)];
-                                case 1:
-                                    anagrams = (_a.sent()) || [];
-                                    anagrams = anagrams.filter(function (anagram) {
-                                        return anagram.word !== word;
-                                    });
-                                    if (noProperNouns) {
-                                        anagrams = anagrams.filter(function (anagram) {
-                                            return anagram.word.charAt(0) !== anagram.word.charAt(0).toUpperCase();
-                                        });
-                                    }
-                                    // TODO: Find a better place to put this
-                                    if (limit) {
-                                        anagrams = anagrams.slice(0, limit);
-                                    }
-                                    resolve(anagrams);
-                                    return [2 /*return*/];
-                            }
+                switch (_a.label) {
+                    case 0:
+                        anagram = new Anagram_1.Anagram(word);
+                        return [4 /*yield*/, this.dataConnector.getAnagrams(anagram.key, limit)];
+                    case 1:
+                        anagrams = (_a.sent()) || [];
+                        anagrams = anagrams.filter(function (anagram) {
+                            return anagram.word !== word;
                         });
-                    }); })];
+                        if (noProperNouns) {
+                            anagrams = anagrams.filter(function (anagram) {
+                                return anagram.word.charAt(0) !== anagram.word.charAt(0).toUpperCase();
+                            });
+                        }
+                        // TODO: Find a better place to put this
+                        if (limit) {
+                            anagrams = anagrams.slice(0, limit);
+                        }
+                        return [2 /*return*/, anagrams];
+                }
+            });
+        });
+    };
+    AnagramService.prototype.getWordsWithMostAnagrams = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.dataConnector.getWordsWithTheMostAnagrams()];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    AnagramService.prototype.getWordsWithNumberOfAnagramsAboveCount = function (count) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.dataConnector.getWordsWithNumberOfAnagramsAboveCount(count)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
             });
         });
     };
     AnagramService.prototype.addWord = function (word) {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        var anagram;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0:
-                                    anagram = new Anagram_1.Anagram(word);
-                                    return [4 /*yield*/, this.dataConnector.addAnagram(anagram)];
-                                case 1:
-                                    _a.sent();
-                                    resolve();
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); })];
+                switch (_a.label) {
+                    case 0:
+                        // Don't add empty words
+                        if (word.trim() === '') {
+                            return [2 /*return*/];
+                        }
+                        return [4 /*yield*/, this.dataConnector.addAnagram(new Anagram_1.Anagram(word))];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
             });
         });
     };
     AnagramService.prototype.deleteWord = function (word) {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        var anagram;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0:
-                                    anagram = new Anagram_1.Anagram(word);
-                                    return [4 /*yield*/, this.dataConnector.deleteAnagram(anagram)];
-                                case 1:
-                                    _a.sent();
-                                    resolve();
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.dataConnector.deleteAnagram(new Anagram_1.Anagram(word))];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
             });
         });
     };
     AnagramService.prototype.deleteAnagramList = function (word) {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        var anagram;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0:
-                                    anagram = new Anagram_1.Anagram(word);
-                                    return [4 /*yield*/, this.dataConnector.deleteAnagramList(anagram)];
-                                case 1:
-                                    _a.sent();
-                                    resolve();
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.dataConnector.deleteAnagramList(new Anagram_1.Anagram(word))];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
             });
         });
     };
     AnagramService.prototype.deleteAll = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0: return [4 /*yield*/, this.dataConnector.deleteAll()];
-                                case 1:
-                                    _a.sent();
-                                    resolve();
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.dataConnector.deleteAll()];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
             });
         });
     };
     AnagramService.prototype.getAnagramStatistics = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
+            var statistics;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        var statistics;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0: return [4 /*yield*/, this.dataConnector.getAnagramStatistics()];
-                                case 1:
-                                    statistics = _a.sent();
-                                    resolve(statistics);
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.dataConnector.getAnagramStatistics()];
+                    case 1:
+                        statistics = _a.sent();
+                        return [2 /*return*/, statistics];
+                }
             });
         });
     };

@@ -61,6 +61,32 @@ var AnagramController = /** @class */ (function () {
                 }
             });
         }); });
+        this.expressApp.get('/most.json', function (request, response) { return __awaiter(_this, void 0, void 0, function () {
+            var results;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.anagramService.getWordsWithMostAnagrams()];
+                    case 1:
+                        results = _a.sent();
+                        response.json({ words: results });
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        this.expressApp.get('/having.json', function (request, response) { return __awaiter(_this, void 0, void 0, function () {
+            var count, results;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        count = request.query['count'];
+                        return [4 /*yield*/, this.anagramService.getWordsWithNumberOfAnagramsAboveCount(count)];
+                    case 1:
+                        results = _a.sent();
+                        response.json({ groups: results });
+                        return [2 /*return*/];
+                }
+            });
+        }); });
         // Get statistics on datastore
         this.expressApp.get('/statistics.json', function (request, response) { return __awaiter(_this, void 0, void 0, function () {
             var results;

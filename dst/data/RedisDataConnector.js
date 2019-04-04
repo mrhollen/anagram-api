@@ -50,6 +50,7 @@ var RedisDataConnector = /** @class */ (function () {
         this.getSetAsync = util_1.promisify(this.redisClient.smembers).bind(this.redisClient);
         this.setAddAsync = util_1.promisify(this.redisClient.sadd).bind(this.redisClient);
         this.removeFromSetAsync = util_1.promisify(this.redisClient.srem).bind(this.redisClient);
+        this.getSetCardalityAsync = util_1.promisify(this.redisClient.scard).bind(this.redisClient);
         this.getSortedSetCardalityAsync = util_1.promisify(this.redisClient.zcard).bind(this.redisClient);
         this.getKeysAsync = util_1.promisify(this.redisClient.keys).bind(this.redisClient);
         this.deleteKeyAsync = util_1.promisify(this.redisClient.del).bind(this.redisClient);
@@ -165,6 +166,71 @@ var RedisDataConnector = /** @class */ (function () {
                         _a.sent();
                         this.updateStatistics = true;
                         return [2 /*return*/];
+                }
+            });
+        });
+    };
+    // This runs really slowly and would be better as a Lua script running on the redis machine
+    RedisDataConnector.prototype.getWordsWithTheMostAnagrams = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var keys, keyToBeat, lengthToBeat, _i, keys_1, key, setSize;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getKeysAsync('anagram.*')];
+                    case 1:
+                        keys = _a.sent();
+                        keyToBeat = '';
+                        lengthToBeat = 0;
+                        _i = 0, keys_1 = keys;
+                        _a.label = 2;
+                    case 2:
+                        if (!(_i < keys_1.length)) return [3 /*break*/, 5];
+                        key = keys_1[_i];
+                        return [4 /*yield*/, this.getSetCardalityAsync(key)];
+                    case 3:
+                        setSize = _a.sent();
+                        if (setSize > lengthToBeat) {
+                            lengthToBeat = setSize;
+                            keyToBeat = key;
+                        }
+                        _a.label = 4;
+                    case 4:
+                        _i++;
+                        return [3 /*break*/, 2];
+                    case 5: return [4 /*yield*/, this.getSetAsync(keyToBeat)];
+                    case 6: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    // This runs really slowly and would be better as a Lua script running on the redis machine
+    RedisDataConnector.prototype.getWordsWithNumberOfAnagramsAboveCount = function (count) {
+        return __awaiter(this, void 0, void 0, function () {
+            var keys, groups, _i, keys_2, key, setSize, set;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getKeysAsync('anagram.*')];
+                    case 1:
+                        keys = _a.sent();
+                        groups = [[]];
+                        _i = 0, keys_2 = keys;
+                        _a.label = 2;
+                    case 2:
+                        if (!(_i < keys_2.length)) return [3 /*break*/, 6];
+                        key = keys_2[_i];
+                        return [4 /*yield*/, this.getSetCardalityAsync(key)];
+                    case 3:
+                        setSize = _a.sent();
+                        if (!(setSize >= count)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.getSetAsync(key)];
+                    case 4:
+                        set = _a.sent();
+                        groups.push(set);
+                        _a.label = 5;
+                    case 5:
+                        _i++;
+                        return [3 /*break*/, 2];
+                    case 6: return [2 /*return*/, groups];
                 }
             });
         });

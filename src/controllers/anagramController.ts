@@ -23,6 +23,17 @@ export class AnagramController {
             response.json({ anagrams: result.map(a => a.word) });
         });
 
+        this.expressApp.get('/most.json', async (request, response) => {
+            const results = await this.anagramService.getWordsWithMostAnagrams();
+            response.json({words: results});
+        });
+
+        this.expressApp.get('/having.json', async (request, response) => {
+            const count = request.query['count'];
+            const results = await this.anagramService.getWordsWithNumberOfAnagramsAboveCount(count);
+            response.json({groups: results});
+        });
+
         // Get statistics on datastore
         this.expressApp.get('/statistics.json', async (request, response) => {
             const results = await this.anagramService.getAnagramStatistics();

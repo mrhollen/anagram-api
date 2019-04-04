@@ -1,19 +1,16 @@
 import { IDataConnector } from './IDataConnector';
 import { Anagram } from '../models/Anagram';
 import { IAnagramStatistics } from '../models/IAnagramStatistics';
+import { resolve } from 'url';
 
 export class InMemoryDataConnector implements IDataConnector {
     private anagrams: Map<string, Anagram[]>;
-    private totalWords: number;
-    private totalWordLength: number;
     private longestWord: string | undefined;
     private shortestWord: string | undefined;
     private statistics: IAnagramStatistics;
 
     constructor() {
         this.anagrams = new Map<string, Anagram[]>();
-        this.totalWords = 0;
-        this.totalWordLength = 0;
         this.longestWord = undefined;
         this.shortestWord = undefined;
         this.statistics = {
@@ -35,9 +32,6 @@ export class InMemoryDataConnector implements IDataConnector {
     
     public addAnagram(anagram: Anagram): Promise<void> {
         return new Promise(async (resolve, reject) => {
-            // Don't add empty words
-            if(anagram.word === ''){ return; }
-
             // Create value for key
             let existingSet: Anagram[] = [];
 
@@ -91,6 +85,44 @@ export class InMemoryDataConnector implements IDataConnector {
         });
     }
 
+    public getWordsWithTheMostAnagrams(): Promise<string[]> {
+        return new Promise((resolve, reject) => {
+            let keyToBeat = '';
+            let lengthToBeat = 0;
+
+            // Find the key that has the most items in it's set
+            this.anagrams.forEach((value, key) => {
+                if(value.length > lengthToBeat){
+                    lengthToBeat = value.length;
+                    keyToBeat = key;
+                }
+            });
+
+            const result = this.anagrams.get(keyToBeat);
+
+            if(result !== undefined){
+                resolve(result.map(r => r.word));
+            } else {
+                resolve([]);
+            }
+        });
+    }
+
+    public getWordsWithNumberOfAnagramsAboveCount(count: number): Promise<[string[]]> {
+        return new Promise((resolve, reject) => {
+            const groups: [string[]] = [[]];
+
+            // Get all the sets that are at or above our goal
+            this.anagrams.forEach((value, key) => {
+                if(value.length >= count){
+                    groups.push(value.map(v => v.word));
+                }
+            });
+
+            resolve(groups);
+        });
+    }
+
     public getAnagramStatistics(): Promise<IAnagramStatistics> {
         return new Promise((resolve, reject) => {    
             this.calculateStatistics();    
@@ -99,7 +131,6 @@ export class InMemoryDataConnector implements IDataConnector {
     }
 
     private clearStatistics() {
-        this.totalWords = 0;
         this.longestWord = undefined;
         this.shortestWord = undefined;
 
@@ -114,8 +145,6 @@ export class InMemoryDataConnector implements IDataConnector {
 
     private updateLongestAndShortestWords(word: string, add: boolean): void {
         if(add){
-            this.totalWords++;
-            this.totalWordLength += word.length;
             if (!this.longestWord || this.longestWord.length < word.length){
                 this.longestWord = word;
             }
@@ -123,21 +152,37 @@ export class InMemoryDataConnector implements IDataConnector {
                 this.shortestWord = word;
             }
         } else {
-            this.totalWords--;
-            this.totalWordLength -= word.length;
             this.longestWord = this.findLongestWord();
             this.shortestWord = this.findShortestWord();
         }
     }
 
     private calculateStatistics(): void {
+        const totalWords = this.getTotalWords();
+        const totalWordLength = this.getTotalWordLength();
         this.statistics = {
-            totalWords: this.totalWords,
+            totalWords: totalWords,
             longestLength: this.longestWord ? this.longestWord.length : 0,
             shortestLength: this.shortestWord ? this.shortestWord.length : 0,
-            averageLength: Math.floor(this.totalWordLength / this.totalWords),
+            averageLength: Math.floor(totalWordLength / totalWords),
             medianLength: this.findMedianWordLength(),
         };
+    }
+
+    private getTotalWords(): number {
+        let total = 0;
+        this.anagrams.forEach(anagrams => {
+            total += anagrams.length;
+        });
+        return total;
+    }
+
+    private getTotalWordLength(): number {
+        let total = 0;
+        this.anagrams.forEach((anagrams, key) => {
+            total += key.length * anagrams.length;
+        });
+        return total;
     }
 
     private findLongestWord(): string | undefined {
@@ -169,6 +214,10 @@ export class InMemoryDataConnector implements IDataConnector {
     }
 
     private findMedianWordLength(): number {
+        if(this.anagrams.size === 0){
+            return 0;
+        }
+
         let words: Anagram[] = []
 
         this.anagrams.forEach(anagramArray => {
@@ -176,7 +225,7 @@ export class InMemoryDataConnector implements IDataConnector {
                 words.push(anagram);
             });
         });
-
+        
         return words[Math.floor(words.length/2)].word.length;
     }
 }

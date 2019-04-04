@@ -8,4 +8,6 @@ export interface IDataConnector {
     deleteAnagramList(anagram: Anagram): Promise<void>;
     deleteAll(): Promise<void>;
     getAnagramStatistics(): Promise<IAnagramStatistics>;
+    getWordsWithTheMostAnagrams(): Promise<string[]>
+    getWordsWithNumberOfAnagramsAboveCount(count: number): Promise<[string[]]>;
 }

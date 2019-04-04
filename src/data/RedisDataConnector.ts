@@ -13,6 +13,7 @@ export class RedisDataConnector implements IDataConnector {
     private getSetAsync: (key: string) => Promise<string[]>;
     private setAddAsync: (key: string, ...args: Array<string>) => Promise<number>;
     private removeFromSetAsync: (key: string, ...args: Array<string>) => Promise<number>;
+    private getSetCardalityAsync: (key: string) => Promise<number>;
     private getKeysAsync: (pattern: string) => Promise<string[]>;
     private deleteKeyAsync: (key: string, ...args: Array<string>) => Promise<number>;
     private setAsync: (key: string, value: string) => Promise<any>;
@@ -31,6 +32,7 @@ export class RedisDataConnector implements IDataConnector {
         this.getSetAsync = promisify(this.redisClient.smembers).bind(this.redisClient);
         this.setAddAsync = promisify(this.redisClient.sadd).bind(this.redisClient);
         this.removeFromSetAsync = promisify(this.redisClient.srem).bind(this.redisClient);
+        this.getSetCardalityAsync = promisify(this.redisClient.scard).bind(this.redisClient);
         this.getSortedSetCardalityAsync = promisify(this.redisClient.zcard).bind(this.redisClient);
         this.getKeysAsync = promisify(this.redisClient.keys).bind(this.redisClient);
         this.deleteKeyAsync = promisify(this.redisClient.del).bind(this.redisClient);
@@ -88,6 +90,41 @@ export class RedisDataConnector implements IDataConnector {
 
         await this.clearStatisticsAndSave();
         this.updateStatistics = true;
+    }
+
+    // This runs really slowly and would be better as a Lua script running on the redis machine
+    public async getWordsWithTheMostAnagrams(): Promise<string[]> {
+        const keys = await this.getKeysAsync('anagram.*');
+        let keyToBeat = '';
+        let lengthToBeat = 0;
+
+        // Find the key that has the most items in it's set
+        for(const key of keys) {
+            const setSize = await this.getSetCardalityAsync(key);
+            if(setSize > lengthToBeat){
+                lengthToBeat = setSize;
+                keyToBeat = key;
+            }
+        }
+
+        return await this.getSetAsync(keyToBeat);
+    }
+
+    // This runs really slowly and would be better as a Lua script running on the redis machine
+    public async getWordsWithNumberOfAnagramsAboveCount(count: number): Promise<[string[]]> {
+        const keys = await this.getKeysAsync('anagram.*');
+        const groups: [string[]] = [[]];
+
+        // Get all the sets that are at or above our goal
+        for(const key of keys) {
+            const setSize = await this.getSetCardalityAsync(key);
+            if(setSize >= count){
+                const set = await this.getSetAsync(key);
+                groups.push(set);
+            }
+        }
+
+        return groups;
     }
     
     public async getAnagramStatistics(): Promise<IAnagramStatistics> {
