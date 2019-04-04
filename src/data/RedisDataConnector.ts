@@ -18,13 +18,12 @@ export class RedisDataConnector implements IDataConnector {
     private setAsync: (key: string, value: string) => Promise<any>;
     private getSortedSetCardalityAsync: (key: string) => Promise<number>;
     private getSortedSetAsync: (key: string, start: number, end: number) => Promise<any>;
-    private addSortedSetAsync: (key: string, ...args: Array<string>) => Promise<number>;
+    private addSortedSetAsync: (key: string, ...args: Array<string | number>) => Promise<number>;
     private removeSortedSetAsync: (key: string, ...args: Array<string>) => Promise<number>;
+    private scanSortedSetAsync: (key: string, ...args: Array<any>) => Promise<[string, string[]]>;
 
     constructor(redisHost: string, redisPort: number) {
-        console.log(`Connecting to redis host at ${redisHost}:${redisPort}...`);
         this.redisClient = redis.createClient(redisPort, redisHost);
-        console.log(`Connected!`);
         this.updateStatistics = true;
 
         // Setup all the promises
@@ -39,6 +38,7 @@ export class RedisDataConnector implements IDataConnector {
         this.getSortedSetAsync = promisify(this.redisClient.zrange).bind(this.redisClient);
         this.addSortedSetAsync = promisify(this.redisClient.zadd).bind(this.redisClient);
         this.removeSortedSetAsync = promisify(this.redisClient.zrem).bind(this.redisClient);
+        this.scanSortedSetAsync = promisify(this.redisClient.zscan).bind(this.redisClient);
     }
 
     public async getAnagrams(key: string, limit?: number | undefined): Promise<Anagram[]> {
@@ -53,8 +53,8 @@ export class RedisDataConnector implements IDataConnector {
     public async addAnagram(anagram: Anagram): Promise<void> {
         // Since we're using a set, each value can be added once and only once
         // We don't need to make sure there aren't duplicates
-        await this.setAddAsync(`anagram.${anagram.key}`, anagram.word);
-        await this.addSortedSetAsync('all', anagram.word);
+        await this.setAddAsync(`anagram.${anagram.key}`,anagram.word);
+        await this.addSortedSetAsync('all', anagram.word.length,  anagram.word);
         this.updateStatistics = true;
     }
 
@@ -117,74 +117,76 @@ export class RedisDataConnector implements IDataConnector {
     private async calculateStatisticsAndSave(): Promise<void> {
         this.updateStatistics = false;
 
-        const words = await this.getAllWords();
-
-        const longestWord = this.findLongestWord(words);
-        const shortestWord = this.findShortestWord(words);
+        const longestWord = await this.findLongestWord();
+        const shortestWord = await this.findShortestWord();
 
         this.saveStatistics({
-            totalWords: words.length,
-            longestLength: longestWord ? longestWord.length : 0,
-            shortestLength: shortestWord ? shortestWord.length : 0,
-            averageLength: this.getAverageWordLength(words),
-            medianLength: this.findMedianWordLength(words),
+            totalWords: await this.getSortedSetCardalityAsync('all'),
+            longestLength: longestWord.length,
+            shortestLength: shortestWord.length,
+            averageLength: await this.getAverageWordLength(),
+            medianLength: await this.findMedianWordLength(),
         });
     }
 
-    private findLongestWord(words: string[]): string | undefined {
-        let longestSoFar: string | undefined;
-
-        words.forEach(word => {
-            if(!longestSoFar || word.length > longestSoFar.length) {
-                longestSoFar = word;
-            }
-        });
-
-        return longestSoFar;
-    }
-
-    private findShortestWord(words: string[]): string | undefined {
-        let shortestSoFar: string | undefined;
-
-        words.forEach(word => {
-            if(!shortestSoFar || word.length < shortestSoFar.length) {
-                shortestSoFar = word;
-            }
-        });
-
-        return shortestSoFar;
-    }
-
-    private getAverageWordLength(words: string[]): number {
-        if(words.length > 0){
-            let totalCharacterCount = 0;
-
-            words.forEach(word => {
-                totalCharacterCount += word.length;
-            });
-
-            return Math.floor(totalCharacterCount / words.length);
+    private async findLongestWord(): Promise<string> {
+        // Get the last element in the sorted set since they are sorted by length
+        const set = await this.getSortedSetAsync('all', -2, -1);
+        if(set.length > 0){
+            return set[0];
         } else {
+            // If the set is empty, return empty string
+            return '';
+        }
+    }
+
+    private async findShortestWord(): Promise<string> {
+        // Get the first element in the set since they are sorted by length
+        const set = await this.getSortedSetAsync('all', 0, 1);
+        if(set.length > 0){
+            return set[0];
+        } else {
+            // If the set is empty, return empty string
+            return '';
+        }
+    }
+
+    private async getAverageWordLength(): Promise<number> {
+        const wordCount = await this.getSortedSetCardalityAsync('all');
+        const zset = await this.scanSortedSetAsync('all', 0);
+        let totalScore = 0;
+        let counter = 1;
+
+        // Now we need to go through our results and add up the scores
+        // This could probably be replace with something more efficient
+        for(const set of zset) {
+            if(typeof(set) !== 'string'){
+                for(const item of set){
+                    if(counter % 2 === 0){
+                        totalScore += Number(item)
+                    }
+
+                    counter++;
+                }
+            }
+        }
+
+        return Math.floor(totalScore / wordCount);
+    }
+
+    private async findMedianWordLength(): Promise<number> {
+        // Find the mid point of the sorted set
+        const wordCount = await this.getSortedSetCardalityAsync('all');
+        const midPoint = Math.floor(wordCount / 2);
+
+        // Get the middle element
+        const set = await this.getSortedSetAsync('all', midPoint,  midPoint + 1);
+        if(set.length > 0){
+            // Return the middle element
+            return set[0].length;
+        } else {
+            // If the set is empty, return 0
             return 0;
         }
-    }
-
-    private findMedianWordLength(words: string[]): number {
-        if(words.length > 0){
-            return words[Math.floor(words.length/2)].length;
-        } else {
-            return 0;
-        }
-    }
-
-    private async getAllWords(): Promise<string[]> {
-        const words: string[] = [];
-
-        const sortedWords = await this.getKeysAsync(`all`);
-        for(const word of sortedWords){
-            words.push(word);
-        }
-
-        return words.sort();
     }
 }

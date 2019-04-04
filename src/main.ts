@@ -23,13 +23,23 @@ class App {
         this.server = http.createServer();
 
         // Read in the config as an object for easy access
-        this.appConfig = require("../appsettings.json");
+        try{
+            this.appConfig = require("../appsettings.json");
+        } catch {
+            // Create default config if no appsettings.json is found
+            this.appConfig = {
+                port: 3000,
+                connectorType: ConnectorTypes.InMemory,
+                dictionaryFile: "",
+                useDictionaryFile: false,
+                redisConfig: undefined
+            };
+        }
 
         // Setup our data connections based on the config provided
         // TODO: Get this to be injected on startup
         let dataConnector: IDataConnector;
-        if(this.appConfig.connectorType === ConnectorTypes.Redis) {
-            console.log(this.appConfig.redisConfig.host);
+        if(this.appConfig.connectorType === ConnectorTypes.Redis && this.appConfig.redisConfig) {
             dataConnector = new RedisDataConnector(this.appConfig.redisConfig.host, this.appConfig.redisConfig.port);
         } else if(this.appConfig.connectorType === ConnectorTypes.InMemory) {
             dataConnector = new InMemoryDataConnector();

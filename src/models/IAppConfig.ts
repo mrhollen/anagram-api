@@ -7,5 +7,5 @@ export interface IAppConfig {
     dictionaryFile: string;
     connectorType: ConnectorTypes;
 
-    redisConfig: IRedisConfig;
+    redisConfig: IRedisConfig | undefined;
 }

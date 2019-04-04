@@ -43,9 +43,7 @@ var redis_1 = __importDefault(require("redis"));
 var util_1 = require("util");
 var RedisDataConnector = /** @class */ (function () {
     function RedisDataConnector(redisHost, redisPort) {
-        console.log("Connecting to redis host at " + redisHost + ":" + redisPort + "...");
         this.redisClient = redis_1.default.createClient(redisPort, redisHost);
-        console.log("Connected!");
         this.updateStatistics = true;
         // Setup all the promises
         this.getAsync = util_1.promisify(this.redisClient.get).bind(this.redisClient);
@@ -59,6 +57,7 @@ var RedisDataConnector = /** @class */ (function () {
         this.getSortedSetAsync = util_1.promisify(this.redisClient.zrange).bind(this.redisClient);
         this.addSortedSetAsync = util_1.promisify(this.redisClient.zadd).bind(this.redisClient);
         this.removeSortedSetAsync = util_1.promisify(this.redisClient.zrem).bind(this.redisClient);
+        this.scanSortedSetAsync = util_1.promisify(this.redisClient.zscan).bind(this.redisClient);
     }
     RedisDataConnector.prototype.getAnagrams = function (key, limit) {
         return __awaiter(this, void 0, void 0, function () {
@@ -87,7 +86,7 @@ var RedisDataConnector = /** @class */ (function () {
                         // Since we're using a set, each value can be added once and only once
                         // We don't need to make sure there aren't duplicates
                         _a.sent();
-                        return [4 /*yield*/, this.addSortedSetAsync('all', anagram.word)];
+                        return [4 /*yield*/, this.addSortedSetAsync('all', anagram.word.length, anagram.word)];
                     case 2:
                         _a.sent();
                         this.updateStatistics = true;
@@ -213,81 +212,129 @@ var RedisDataConnector = /** @class */ (function () {
     };
     RedisDataConnector.prototype.calculateStatisticsAndSave = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var words, longestWord, shortestWord;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var longestWord, shortestWord, _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         this.updateStatistics = false;
-                        return [4 /*yield*/, this.getAllWords()];
+                        return [4 /*yield*/, this.findLongestWord()];
                     case 1:
-                        words = _a.sent();
-                        longestWord = this.findLongestWord(words);
-                        shortestWord = this.findShortestWord(words);
-                        this.saveStatistics({
-                            totalWords: words.length,
-                            longestLength: longestWord ? longestWord.length : 0,
-                            shortestLength: shortestWord ? shortestWord.length : 0,
-                            averageLength: this.getAverageWordLength(words),
-                            medianLength: this.findMedianWordLength(words),
-                        });
+                        longestWord = _c.sent();
+                        return [4 /*yield*/, this.findShortestWord()];
+                    case 2:
+                        shortestWord = _c.sent();
+                        _a = this.saveStatistics;
+                        _b = {};
+                        return [4 /*yield*/, this.getSortedSetCardalityAsync('all')];
+                    case 3:
+                        _b.totalWords = _c.sent(),
+                            _b.longestLength = longestWord.length,
+                            _b.shortestLength = shortestWord.length;
+                        return [4 /*yield*/, this.getAverageWordLength()];
+                    case 4:
+                        _b.averageLength = _c.sent();
+                        return [4 /*yield*/, this.findMedianWordLength()];
+                    case 5:
+                        _a.apply(this, [(_b.medianLength = _c.sent(),
+                                _b)]);
                         return [2 /*return*/];
                 }
             });
         });
     };
-    RedisDataConnector.prototype.findLongestWord = function (words) {
-        var longestSoFar;
-        words.forEach(function (word) {
-            if (!longestSoFar || word.length > longestSoFar.length) {
-                longestSoFar = word;
-            }
-        });
-        return longestSoFar;
-    };
-    RedisDataConnector.prototype.findShortestWord = function (words) {
-        var shortestSoFar;
-        words.forEach(function (word) {
-            if (!shortestSoFar || word.length < shortestSoFar.length) {
-                shortestSoFar = word;
-            }
-        });
-        return shortestSoFar;
-    };
-    RedisDataConnector.prototype.getAverageWordLength = function (words) {
-        if (words.length > 0) {
-            var totalCharacterCount_1 = 0;
-            words.forEach(function (word) {
-                totalCharacterCount_1 += word.length;
-            });
-            return Math.floor(totalCharacterCount_1 / words.length);
-        }
-        else {
-            return 0;
-        }
-    };
-    RedisDataConnector.prototype.findMedianWordLength = function (words) {
-        if (words.length > 0) {
-            return words[Math.floor(words.length / 2)].length;
-        }
-        else {
-            return 0;
-        }
-    };
-    RedisDataConnector.prototype.getAllWords = function () {
+    RedisDataConnector.prototype.findLongestWord = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var words, sortedWords, _i, sortedWords_1, word;
+            var set;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        words = [];
-                        return [4 /*yield*/, this.getKeysAsync("all")];
+                    case 0: return [4 /*yield*/, this.getSortedSetAsync('all', -2, -1)];
                     case 1:
-                        sortedWords = _a.sent();
-                        for (_i = 0, sortedWords_1 = sortedWords; _i < sortedWords_1.length; _i++) {
-                            word = sortedWords_1[_i];
-                            words.push(word);
+                        set = _a.sent();
+                        if (set.length > 0) {
+                            return [2 /*return*/, set[0]];
                         }
-                        return [2 /*return*/, words.sort()];
+                        else {
+                            // If the set is empty, return empty string
+                            return [2 /*return*/, ''];
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    RedisDataConnector.prototype.findShortestWord = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var set;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getSortedSetAsync('all', 0, 1)];
+                    case 1:
+                        set = _a.sent();
+                        if (set.length > 0) {
+                            return [2 /*return*/, set[0]];
+                        }
+                        else {
+                            // If the set is empty, return empty string
+                            return [2 /*return*/, ''];
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    RedisDataConnector.prototype.getAverageWordLength = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var wordCount, zset, totalScore, counter, _i, zset_1, set, _a, set_1, item;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, this.getSortedSetCardalityAsync('all')];
+                    case 1:
+                        wordCount = _b.sent();
+                        return [4 /*yield*/, this.scanSortedSetAsync('all', 0)];
+                    case 2:
+                        zset = _b.sent();
+                        totalScore = 0;
+                        counter = 1;
+                        // Now we need to go through our results and add up the scores
+                        // This could probably be replace with something more efficient
+                        for (_i = 0, zset_1 = zset; _i < zset_1.length; _i++) {
+                            set = zset_1[_i];
+                            if (typeof (set) !== 'string') {
+                                for (_a = 0, set_1 = set; _a < set_1.length; _a++) {
+                                    item = set_1[_a];
+                                    if (counter % 2 === 0) {
+                                        totalScore += Number(item);
+                                    }
+                                    counter++;
+                                }
+                            }
+                        }
+                        return [2 /*return*/, Math.floor(totalScore / wordCount)];
+                }
+            });
+        });
+    };
+    RedisDataConnector.prototype.findMedianWordLength = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var wordCount, midPoint, set;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getSortedSetCardalityAsync('all')];
+                    case 1:
+                        wordCount = _a.sent();
+                        midPoint = Math.floor(wordCount / 2);
+                        return [4 /*yield*/, this.getSortedSetAsync('all', midPoint, midPoint + 1)];
+                    case 2:
+                        set = _a.sent();
+                        if (set.length > 0) {
+                            // Return the middle element
+                            return [2 /*return*/, set[0].length];
+                        }
+                        else {
+                            // If the set is empty, return 0
+                            return [2 /*return*/, 0];
+                        }
+                        return [2 /*return*/];
                 }
             });
         });
