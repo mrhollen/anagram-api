@@ -70,6 +70,6 @@ Redis is a very fast, in memory, single threaded, key value store that supports 
 - It's designed to work in a cluster of redis nodes and so can be highly available if needed
 - It supports Lua scripts as a way of creating what are essentially "stored procedures"
 #### Cons
-- Redis is almost entirely in memory so if the server shuts down, your data goes away [(kinda}](https://redis.io/topics/persistence)
+- Redis is almost entirely in memory so if the server shuts down, your data goes away [kinda](https://redis.io/topics/persistence)
 - Running a highly available redis cluster means your data not guaranteed consistency
 - Running any sort of complex query of data is not really what redis was designed for
