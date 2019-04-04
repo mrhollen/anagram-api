@@ -35,6 +35,55 @@ This is my solution for the take-home Anagram Rest API project. It's written in 
     - **Or** run the command `docker-compose --project-directory ./ -f ./docker/docker-compose.yml build`
     - **and then** `docker-compose --project-directory ./ -f ./docker/docker-compose.yml up`
 
+## API
+#### Get Anagrams of a Word 
+- `/anagrams/:word.json`
+- Http GET
+- Query Arguments
+     - limit: number (optional)
+     - noProperNouns: boolean (optional)
+- Returns {'words': string[]}
+#### Get Group of Words with the Most Anagrams 
+- `/most.json`
+- Http GET
+- Returns {'words': string[]}
+#### Get Groups of Words with Anagram Count at or Above Count
+- `/having.json`
+- Http GET
+- Returns {'groups': [string[]]}
+#### Get Datastore Statistics
+- `/statistics.json`
+- Http GET
+- Returns ```{
+    'totalwords': number,
+    'averageLength': number,
+    'medianLength': number,
+    'longestLength': number,
+    'shortestLength': number 
+    }```
+
+#### Add Words to the Datastore 
+- `/words.json`
+- Http POST
+- body
+     - { 'words': string[] } (required)
+#### Check if List of Words are all Anagrams of One Another
+- `/check.json`
+- Http POST
+- body
+     - { 'words': string[] } (required)
+- Returns boolean
+
+#### Remove Word from the Datastore 
+- `/words/:word.json`
+- Http DELETE
+#### Remove Word from the Datastore Along with All It's Anagrams
+- `/anagrams/:word.json`
+- Http DELETE
+#### Remove All Words from the Datastore 
+- `/words.json`
+- Http DELETE
+
 ## About Continued
 ### Why Typescript
 I chose typescript because the strong typing makes catching errors much easier. Many type missmatches are caught at compile time rather than run time. The syntax of Typescript is like that of a cross between C#/Java and Javascript which makes it easy for people familiar with either language to learn. Typescript also enables whatever IDE you're using to implements some really awesome intellisense which makes code very nice.
