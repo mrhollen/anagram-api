@@ -61,6 +61,7 @@ var AnagramController = /** @class */ (function () {
                 }
             });
         }); });
+        // Get the group of words that have the most anagrams
         this.expressApp.get('/most.json', function (request, response) { return __awaiter(_this, void 0, void 0, function () {
             var results;
             return __generator(this, function (_a) {
@@ -73,6 +74,7 @@ var AnagramController = /** @class */ (function () {
                 }
             });
         }); });
+        // Get the words that have anagrams greater than or equal to the query passed in
         this.expressApp.get('/having.json', function (request, response) { return __awaiter(_this, void 0, void 0, function () {
             var count, results;
             return __generator(this, function (_a) {

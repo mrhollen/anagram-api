@@ -11,10 +11,14 @@ This is my solution for the take-home Anagram Rest API project. It's written in 
 - tsc (Available through npm)
 - tsc-watch (Available through npm)
 - redis (optional)
+- docker (optional)
+- docker-compose (optional)
 ### Production
 - NodeJS
 - Npm
 - redis (optional)
+- docker (optional)
+- docker-compose (optional)
 
 ## How to Run
 - To run the app just **in memory**:
@@ -25,4 +29,6 @@ This is my solution for the take-home Anagram Rest API project. It's written in 
      - Create `appsettings.json` in the project root. There is a sample config file called appsettings-redis.json
      - Make sure the Redis server is running and accessable
      - Start the app with `npm start`
-
+- To run the app using **docker-compose**:
+    - Create or modify the `appsettings.json` file in the docker folder
+    - Run `buildAndRunDockerCompose.sh` in the project root

@@ -38,8 +38,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var InMemoryDataConnector = /** @class */ (function () {
     function InMemoryDataConnector() {
         this.anagrams = new Map();
-        this.longestWord = undefined;
-        this.shortestWord = undefined;
         this.statistics = {
             averageLength: 0,
             longestLength: 0,
@@ -60,24 +58,18 @@ var InMemoryDataConnector = /** @class */ (function () {
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var existingSet;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        existingSet = [];
-                        // If the key exists, pull the value into our variable
-                        if (this.anagrams.has(anagram.key)) {
-                            existingSet = this.anagrams.get(anagram.key) || [];
-                        }
-                        if (!(existingSet.filter(function (a) { return a.word === anagram.word; }).length === 0)) return [3 /*break*/, 2];
-                        existingSet.push(anagram);
-                        this.anagrams.set(anagram.key, existingSet);
-                        return [4 /*yield*/, this.updateLongestAndShortestWords(anagram.word, true)];
-                    case 1:
-                        _a.sent();
-                        _a.label = 2;
-                    case 2:
-                        resolve();
-                        return [2 /*return*/];
+                existingSet = [];
+                // If the key exists, pull the value into our variable
+                if (this.anagrams.has(anagram.key)) {
+                    existingSet = this.anagrams.get(anagram.key) || [];
                 }
+                // Make sure the word doesn't exist in the collection already
+                if (existingSet.filter(function (a) { return a.word === anagram.word; }).length === 0) {
+                    existingSet.push(anagram);
+                    this.anagrams.set(anagram.key, existingSet);
+                }
+                resolve();
+                return [2 /*return*/];
             });
         }); });
     };
@@ -86,17 +78,11 @@ var InMemoryDataConnector = /** @class */ (function () {
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var anagramsForKey;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        anagramsForKey = this.anagrams.get(anagram.key) || [];
-                        anagramsForKey = anagramsForKey.filter(function (a) { return a.word !== anagram.word; });
-                        this.anagrams.set(anagram.key, anagramsForKey);
-                        return [4 /*yield*/, this.updateLongestAndShortestWords(anagram.word, false)];
-                    case 1:
-                        _a.sent();
-                        resolve();
-                        return [2 /*return*/];
-                }
+                anagramsForKey = this.anagrams.get(anagram.key) || [];
+                anagramsForKey = anagramsForKey.filter(function (a) { return a.word !== anagram.word; });
+                this.anagrams.set(anagram.key, anagramsForKey);
+                resolve();
+                return [2 /*return*/];
             });
         }); });
     };
@@ -104,15 +90,9 @@ var InMemoryDataConnector = /** @class */ (function () {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.anagrams.delete(anagram.key);
-                        return [4 /*yield*/, this.updateLongestAndShortestWords(anagram.word, false)];
-                    case 1:
-                        _a.sent();
-                        resolve();
-                        return [2 /*return*/];
-                }
+                this.anagrams.delete(anagram.key);
+                resolve();
+                return [2 /*return*/];
             });
         }); });
     };
@@ -120,7 +100,6 @@ var InMemoryDataConnector = /** @class */ (function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
             _this.anagrams = new Map();
-            _this.clearStatistics();
             resolve();
         });
     };
@@ -165,38 +144,15 @@ var InMemoryDataConnector = /** @class */ (function () {
             resolve(_this.statistics);
         });
     };
-    InMemoryDataConnector.prototype.clearStatistics = function () {
-        this.longestWord = undefined;
-        this.shortestWord = undefined;
-        this.statistics = {
-            totalWords: 0,
-            longestLength: 0,
-            shortestLength: 0,
-            averageLength: 0,
-            medianLength: 0,
-        };
-    };
-    InMemoryDataConnector.prototype.updateLongestAndShortestWords = function (word, add) {
-        if (add) {
-            if (!this.longestWord || this.longestWord.length < word.length) {
-                this.longestWord = word;
-            }
-            if (!this.shortestWord || this.shortestWord.length > word.length) {
-                this.shortestWord = word;
-            }
-        }
-        else {
-            this.longestWord = this.findLongestWord();
-            this.shortestWord = this.findShortestWord();
-        }
-    };
     InMemoryDataConnector.prototype.calculateStatistics = function () {
         var totalWords = this.getTotalWords();
         var totalWordLength = this.getTotalWordLength();
+        var longestWord = this.findLongestWord();
+        var shortestWord = this.findShortestWord();
         this.statistics = {
             totalWords: totalWords,
-            longestLength: this.longestWord ? this.longestWord.length : 0,
-            shortestLength: this.shortestWord ? this.shortestWord.length : 0,
+            longestLength: longestWord ? longestWord.length : 0,
+            shortestLength: shortestWord ? shortestWord.length : 0,
             averageLength: Math.floor(totalWordLength / totalWords),
             medianLength: this.findMedianWordLength(),
         };

@@ -69,8 +69,6 @@ export class InMemoryDataConnector implements IDataConnector {
         return new Promise((resolve, reject) => {
             this.anagrams = new Map<string, Anagram[]>();
 
-            this.clearStatistics();
-
             resolve();
         });
     }
@@ -118,16 +116,6 @@ export class InMemoryDataConnector implements IDataConnector {
             this.calculateStatistics();    
             resolve(this.statistics);
         });
-    }
-
-    private clearStatistics() {
-        this.statistics = {
-            totalWords: 0,
-            longestLength: 0,
-            shortestLength: 0,
-            averageLength: 0,
-            medianLength: 0,
-        };
     }
 
     private calculateStatistics(): void {
