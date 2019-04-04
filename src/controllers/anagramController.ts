@@ -23,11 +23,13 @@ export class AnagramController {
             response.json({ anagrams: result.map(a => a.word) });
         });
 
+        // Get the group of words that have the most anagrams
         this.expressApp.get('/most.json', async (request, response) => {
             const results = await this.anagramService.getWordsWithMostAnagrams();
             response.json({words: results});
         });
 
+        // Get the words that have anagrams greater than or equal to the query passed in
         this.expressApp.get('/having.json', async (request, response) => {
             const count = request.query['count'];
             const results = await this.anagramService.getWordsWithNumberOfAnagramsAboveCount(count);

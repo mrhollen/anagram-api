@@ -5,14 +5,10 @@ import { resolve } from 'url';
 
 export class InMemoryDataConnector implements IDataConnector {
     private anagrams: Map<string, Anagram[]>;
-    private longestWord: string | undefined;
-    private shortestWord: string | undefined;
     private statistics: IAnagramStatistics;
 
     constructor() {
         this.anagrams = new Map<string, Anagram[]>();
-        this.longestWord = undefined;
-        this.shortestWord = undefined;
         this.statistics = {
             averageLength: 0,
             longestLength: 0,
@@ -44,8 +40,6 @@ export class InMemoryDataConnector implements IDataConnector {
             if(existingSet.filter(a => a.word === anagram.word).length === 0){
                 existingSet.push(anagram);
                 this.anagrams.set(anagram.key, existingSet);
-
-                await this.updateLongestAndShortestWords(anagram.word, true);
             }
 
             resolve();
@@ -60,8 +54,6 @@ export class InMemoryDataConnector implements IDataConnector {
     
             this.anagrams.set(anagram.key, anagramsForKey);
 
-            await this.updateLongestAndShortestWords(anagram.word, false);
-
             resolve();
         });
     }
@@ -69,8 +61,6 @@ export class InMemoryDataConnector implements IDataConnector {
     public deleteAnagramList(anagram: Anagram): Promise<void> {
         return new Promise(async (resolve, reject) => {
             this.anagrams.delete(anagram.key);
-
-            await this.updateLongestAndShortestWords(anagram.word, false);
             resolve();
         });
     }
@@ -131,9 +121,6 @@ export class InMemoryDataConnector implements IDataConnector {
     }
 
     private clearStatistics() {
-        this.longestWord = undefined;
-        this.shortestWord = undefined;
-
         this.statistics = {
             totalWords: 0,
             longestLength: 0,
@@ -143,27 +130,16 @@ export class InMemoryDataConnector implements IDataConnector {
         };
     }
 
-    private updateLongestAndShortestWords(word: string, add: boolean): void {
-        if(add){
-            if (!this.longestWord || this.longestWord.length < word.length){
-                this.longestWord = word;
-            }
-            if(!this.shortestWord || this.shortestWord.length > word.length){
-                this.shortestWord = word;
-            }
-        } else {
-            this.longestWord = this.findLongestWord();
-            this.shortestWord = this.findShortestWord();
-        }
-    }
-
     private calculateStatistics(): void {
         const totalWords = this.getTotalWords();
         const totalWordLength = this.getTotalWordLength();
+        const longestWord = this.findLongestWord();
+        const shortestWord = this.findShortestWord();
+
         this.statistics = {
             totalWords: totalWords,
-            longestLength: this.longestWord ? this.longestWord.length : 0,
-            shortestLength: this.shortestWord ? this.shortestWord.length : 0,
+            longestLength: longestWord ? longestWord.length : 0,
+            shortestLength: shortestWord ? shortestWord.length : 0,
             averageLength: Math.floor(totalWordLength / totalWords),
             medianLength: this.findMedianWordLength(),
         };
